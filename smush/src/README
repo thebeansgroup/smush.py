@@ -2,7 +2,7 @@ smush.py - Optimise images for the web
 ========================================
 
 Smush.it is a great service that applies lossless optimisations to images for display on the web. Unfortunately
-they don't provide an API at the time of writing, and sometimes it's convenient to have a local tool...
+they don't provide an API at the time of writing, and sometimes it's convenient to have a local tool.
 
 smush.py uses the same tools as Smush.it (read more at:
 http://oreilly.com/server-administration/excerpts/9780596522315/optimizing-images.html), but can be run
@@ -15,9 +15,11 @@ The following software is required:
   * pngnq - http://pngnq.sourceforge.net/
   * pngcrush - http://pmt.sourceforge.net/pngcrush/
 
-The following optimisations are performed:
+The following lossless optimisations are performed:
 
 GIFs - If they're animated GIFs, they are optimised with Gifsicle.
        If they aren't animated, they're converted to PNGs with ImageMagick, then optimised as PNGs as below.
 PNGs - Quantised with pngnq, then crushed with pngcrush.
-JPGs - 
+JPGs - EXIF data is removed (except copyright data).
+       If they're larger than 10kb, they're converted to progressive JPGs.
+       Compression is optimised with jpegtran.
