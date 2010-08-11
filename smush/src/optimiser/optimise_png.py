@@ -1,13 +1,11 @@
-import shlex
-import subprocess
 import Optimiser
-import OptimiseAnimatedGif
 
 class OptimisePng(Optimiser):
     """
     Optimises pngs. Uses pngnq (http://pngnq.sourceforge.net/) to quantise them, then uses pngcrush
     (http://pmt.sourceforge.net/pngcrush/) to crush them.
     """
+
 
     def __init__(self):
         # the command to execute this optimiser

@@ -11,6 +11,13 @@ locally.
 The following software is required:
 
   * Gifsicle - http://www.lcdf.org/gifsicle/
-  * ImageMagick
+  * ImageMagick - http://www.imagemagick.org
   * pngnq - http://pngnq.sourceforge.net/
   * pngcrush - http://pmt.sourceforge.net/pngcrush/
+
+The following optimisations are performed:
+
+GIFs - If they're animated GIFs, they are optimised with Gifsicle.
+       If they aren't animated, they're converted to PNGs with ImageMagick, then optimised as PNGs as below.
+PNGs - Quantised with pngnq, then crushed with pngcrush.
+JPGs - 
