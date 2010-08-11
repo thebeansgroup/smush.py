@@ -2,6 +2,8 @@ import os.path
 import os
 import shlex
 import subprocess
+import sys
+import shutil
 
 class Optimiser:
     """
@@ -32,7 +34,7 @@ class Optimiser:
         Returns the input file name with Optimiser.output_suffix inserted before the extension
         """
         (basename, extension) = os.path.splitext(self.input)
-        return os.path.dirname(self.input) + basename + Optimiser.output_suffix + extension
+        return basename + Optimiser.output_suffix + extension
 
 
     def __replace_placeholders(self, command, input, output):
@@ -49,10 +51,14 @@ class Optimiser:
         input_size = os.path.getsize(input)
         output_size = os.path.getsize(output)
 
-        # delete the smaller file, and set the smallest files as the input
-        os.unlink(input if (input_size > output_size) else output)
-        self.set_input(input if (input_size > output_size) else output)
-
+        # if the image was optimised (output is smaller than input), overwrite the input file with the output
+        # file.
+        if (output_size < input_size):
+            shutil.copy(output, input)
+        
+        # delete the output file
+        os.unlink(output)
+        
 
     def is_acceptable_image(self, input):
         """
@@ -63,7 +69,7 @@ class Optimiser:
         """
         (basename, extension) = os.path.splitext(input.lower())
 
-        return extensions.contains(extension)
+        return extension in self.extensions
 
 
     def optimise(self):
@@ -77,14 +83,17 @@ class Optimiser:
             return
 
         for command in self.get_command():
-            command = self.__replace_placeholders(command, self.input, self.__get_output_file_name())
+            output_file_name = self.__get_output_file_name()
+            command = self.__replace_placeholders(command, self.input, output_file_name)
+
+            print "Executing " + command
 
             args = shlex.split(command)
             try:
-                subprocess.Popen(args)
+                subprocess.call(args)
             except OSError:
                 print "Error executing command %s. Error was %s" % (command, OSError)
                 sys.exit(1)
 
             # compare file sizes
-            self.__keep_smallest_file(self.input, self.output)
+            self.__keep_smallest_file(self.input, output_file_name)

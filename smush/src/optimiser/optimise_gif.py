@@ -1,5 +1,5 @@
-import Optimiser
-import OptimiseAnimatedGif
+from optimiser import Optimiser
+from optimiser.optimise_animated_gif import OptimiseAnimatedGif
 
 class OptimiseGif(Optimiser):
     """

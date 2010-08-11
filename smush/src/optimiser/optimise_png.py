@@ -1,4 +1,4 @@
-import Optimiser
+from optimiser import Optimiser
 
 class OptimisePng(Optimiser):
     """
@@ -14,5 +14,4 @@ class OptimisePng(Optimiser):
 
         # file extensions this optimiser can work with
         self.extensions = (".png")
-
-    
+        

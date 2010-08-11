@@ -1,5 +1,4 @@
-# To change this template, choose Tools | Templates
-# and open the template in the editor.
+from optimiser.optimise_png import OptimisePng
 
 __author__="al"
 __date__ ="$Aug 11, 2010 12:21:32 PM$"
