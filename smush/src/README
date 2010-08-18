@@ -25,3 +25,6 @@ JPGs - All EXIF data is removed (it may not be legal to remove copyright notices
        images you own the copyright to or that don't have copyright notices).
        If they're larger than 10kb, they're converted to progressive JPGs.
        Compression is optimised with jpegtran.
+
+Note: If a GIF is converted to a PNG, it keeps the old .gif file extension in case the file name is in a
+database.

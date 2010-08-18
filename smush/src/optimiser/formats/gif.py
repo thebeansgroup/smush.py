@@ -1,3 +1,5 @@
+import os.path
+import shutil
 from optimiser.optimiser import Optimiser
 from animated_gif import OptimiseAnimatedGIF
 
@@ -9,7 +11,9 @@ class OptimiseGIF(Optimiser):
 
     def __init__(self):
         # the command to execute this optimiser
-        self.commands = ("convert __INPUT__ __OUTPUT__",)
+        self.commands = ("convert __INPUT__ png:__OUTPUT__",
+            "pngnq -n 256 -e -opt.gif __INPUT__",
+            "pngcrush -rem alla -brute -reduce __INPUT__ __OUTPUT__")
 
         # file extensions this optimiser can work with
         self.extensions = (".gif")
@@ -17,27 +21,70 @@ class OptimiseGIF(Optimiser):
         # variable so we can easily determine whether a gif is animated or not
         self.animated_gif_optimiser = OptimiseAnimatedGIF()
 
+        self.converted_to_png = False
+
+
+    def set_input(self, input):
+        super(OptimiseGIF, self).set_input(input)
+        self.converted_to_png = False
+
+
+    def _get_output_file_name(self):
+        """
+        Returns the input file name with Optimiser.output_suffix inserted before the extension
+        """
+        return self.input + "-opt.gif"
+
 
     def _is_animated(self, input):
         """
         Tests an image to see whether it's an animated gif
         """
 
-        return self.animated_gif_optimiser.is_acceptable_image(input)
+        return self.animated_gif_optimiser._is_acceptable_image(input)
+
+
+    def _keep_smallest_file(self, input, output):
+        """
+        Compares the sizes of two files, and discards the larger one
+        """
+        input_size = os.path.getsize(input)
+        output_size = os.path.getsize(output)
+        
+        # if the image was optimised (output is smaller than input), overwrite the input file with the output
+        # file.
+        if (output_size < input_size):
+            try:
+                shutil.copyfile(output, input)
+            except IOError:
+                print "Unable to copy %s to %s: %s" % (output, input, IOError)
+                sys.exit(1)
+
+            if self.iterations == 1:
+                self.converted_to_png = True
+
+        # delete the output file
+        os.unlink(output)
 
 
     def _get_command(self):
         """
         Returns the next command to apply
         """
+
+        command = False
+
         # for the first iteration, return the first command
         if self.iterations == 0:
-            self.iterations += 1
-
             # if the GIF is animated, optimise it
             if self._is_animated(self.input):
-                return self.animated_gif_optimiser.commands[0]
+                command = self.animated_gif_optimiser.commands[0]
             else:             # otherwise convert it to PNG
-                return self.commands[0]
+                command = self.commands[0]
 
-        return False
+        # execute the png optimisations if the gif was converted to a png
+        elif self.converted_to_png and self.iterations < len(self.commands):
+            command = self.commands[self.iterations]
+
+        self.iterations += 1
+        return command

@@ -40,7 +40,7 @@ class Optimiser(object):
         return command
 
 
-    def __get_output_file_name(self):
+    def _get_output_file_name(self):
         """
         Returns the input file name with Optimiser.output_suffix inserted before the extension
         """
@@ -75,7 +75,7 @@ class Optimiser(object):
         os.unlink(output)
         
 
-    def is_acceptable_image(self, input):
+    def _is_acceptable_image(self, input):
         """
         Returns whether the input image can be used by a particular optimiser.
 
@@ -93,7 +93,7 @@ class Optimiser(object):
         generated file is larger than the original file, discard it, otherwise discard the input file.
         """
         # make sure the input image is acceptable for this optimiser
-        if not self.is_acceptable_image(self.input):
+        if not self._is_acceptable_image(self.input):
             print self.input, "is not a valid image for this optimiser"
             return
 
@@ -103,7 +103,7 @@ class Optimiser(object):
             if not command:
                 break
 
-            output_file_name = self.__get_output_file_name()
+            output_file_name = self._get_output_file_name()
             command = self.__replace_placeholders(command, self.input, output_file_name)
 
             print "Executing " + command

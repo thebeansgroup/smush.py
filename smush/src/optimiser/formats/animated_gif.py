@@ -14,11 +14,11 @@ class OptimiseAnimatedGIF(Optimiser):
         # file extensions this optimiser can work with
         self.extensions = (".gif")
 
-    def is_acceptable_image(self, input):
+    def _is_acceptable_image(self, input):
         """
         Tests an image to make sure it can be run through this optimiser
         """
-        if super(OptimiseAnimatedGIF, self).is_acceptable_image(input):
+        if super(OptimiseAnimatedGIF, self)._is_acceptable_image(input):
             test_command = "identify -format %m" + input
             args = shlex.split(test_command)
             try:

@@ -19,3 +19,7 @@ if __name__ == "__main__":
     optimiser = OptimiseGIF()
     optimiser.set_input('/home/al/temp/temp-images/todo/the-dog-wins-1.gif')
     optimiser.optimise()
+
+#    optimiser = OptimiseGIF()
+#    optimiser.set_input('/home/al/temp/temp-images/todo/fish.gif')
+#    optimiser.optimise()
