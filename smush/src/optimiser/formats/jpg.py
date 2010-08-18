@@ -1,10 +1,9 @@
 import os.path
-import sys
 from optimiser.optimiser import Optimiser
 
 class OptimiseJPG(Optimiser):
     """
-    Optimises jpegs
+    Optimises jpegs with jpegtran (part of libjpeg)
     """
 
 

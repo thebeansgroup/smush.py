@@ -5,7 +5,10 @@ from animated_gif import OptimiseAnimatedGIF
 
 class OptimiseGIF(Optimiser):
     """
-    Optimises gifs. If they aren't animated, it converts them to pngs with ImageMagick
+    Optimises gifs. If they aren't animated, it converts them to pngs with ImageMagick before
+    optimising them as for pngs.
+
+    Animated gifs get optimised according to the commands in OptimiseAnimatedGIF
     """
 
 
@@ -22,11 +25,13 @@ class OptimiseGIF(Optimiser):
         self.animated_gif_optimiser = OptimiseAnimatedGIF()
 
         self.converted_to_png = False
+        self.is_animated = False
 
 
     def set_input(self, input):
         super(OptimiseGIF, self).set_input(input)
         self.converted_to_png = False
+        self.is_animated = False
 
 
     def _get_output_file_name(self):
@@ -60,7 +65,7 @@ class OptimiseGIF(Optimiser):
                 print "Unable to copy %s to %s: %s" % (output, input, IOError)
                 sys.exit(1)
 
-            if self.iterations == 1:
+            if self.iterations == 1 and not self.is_animated:
                 self.converted_to_png = True
 
         # delete the output file
@@ -79,6 +84,7 @@ class OptimiseGIF(Optimiser):
             # if the GIF is animated, optimise it
             if self._is_animated(self.input):
                 command = self.animated_gif_optimiser.commands[0]
+                self.is_animated = True
             else:             # otherwise convert it to PNG
                 command = self.commands[0]
 

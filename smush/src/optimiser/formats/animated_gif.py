@@ -14,6 +14,7 @@ class OptimiseAnimatedGIF(Optimiser):
         # file extensions this optimiser can work with
         self.extensions = (".gif")
 
+
     def _is_acceptable_image(self, input):
         """
         Tests an image to make sure it can be run through this optimiser
