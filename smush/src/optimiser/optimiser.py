@@ -5,7 +5,7 @@ import subprocess
 import sys
 import shutil
 
-class Optimiser:
+class Optimiser(object):
     """
     Super-class for optimisers
     """
@@ -17,16 +17,27 @@ class Optimiser:
     output_suffix = "-opt"
 
 
+    def __init__(self):
+        # the number of times the get_command iterator has been run
+        self.iterations = 0
+
+    
     def set_input(self, input):
+        self.iterations = 0
         self.input = input
 
 
     def get_command(self):
         """
-        Iterator that returns the next command to apply
+        Returns the next command to apply
         """
-        for command in self.commands:
-            yield command
+        command = False
+        
+        if self.iterations < len(self.commands):
+            command = self.commands[self.iterations]
+            self.iterations += 1
+
+        return command
 
 
     def __get_output_file_name(self):
@@ -86,7 +97,12 @@ class Optimiser:
             print self.input, "is not a valid image for this optimiser"
             return
 
-        for command in self.get_command():
+        while True:
+            command = self.get_command()
+
+            if not command:
+                break
+
             output_file_name = self.__get_output_file_name()
             command = self.__replace_placeholders(command, self.input, output_file_name)
 
