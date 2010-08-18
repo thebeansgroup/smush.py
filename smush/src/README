@@ -28,3 +28,13 @@ JPGs - All EXIF data is removed (it may not be legal to remove copyright notices
 
 Note: If a GIF is converted to a PNG, it keeps the old .gif file extension in case the file name is in a
 database.
+
+Usage
+-----
+
+This script is intended to be run over a collection of existing images - GIFs (perhaps animated), PNGs and
+JPEGs. It will perform lossless optimisations and will OVERWRITE THE ORIGINAL file. It is intended to be
+able to be used to optimise images that have a reference stored in a database, hence the reason for not
+modifying input file names at all.
+
+It can be run as follows:
