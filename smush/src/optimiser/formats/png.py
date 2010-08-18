@@ -1,6 +1,6 @@
-from optimiser import Optimiser
+from optimiser.optimiser import Optimiser
 
-class OptimisePng(Optimiser):
+class OptimisePNG(Optimiser):
     """
     Optimises pngs. Uses pngnq (http://pngnq.sourceforge.net/) to quantise them, then uses pngcrush
     (http://pmt.sourceforge.net/pngcrush/) to crush them.

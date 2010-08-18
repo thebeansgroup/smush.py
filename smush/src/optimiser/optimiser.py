@@ -83,6 +83,7 @@ class Optimiser:
         """
         # make sure the input image is acceptable for this optimiser
         if not self.is_acceptable_image(self.input):
+            print self.input, "is not a valid image for this optimiser"
             return
 
         for command in self.get_command():
@@ -90,8 +91,9 @@ class Optimiser:
             command = self.__replace_placeholders(command, self.input, output_file_name)
 
             print "Executing " + command
-
+            
             args = shlex.split(command)
+            
             try:
                 subprocess.call(args)
             except OSError:
@@ -100,3 +102,4 @@ class Optimiser:
 
             # compare file sizes
             self.__keep_smallest_file(self.input, output_file_name)
+

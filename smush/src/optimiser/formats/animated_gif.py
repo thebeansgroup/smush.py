@@ -1,15 +1,15 @@
 import shlex
 import subprocess
-import Optimiser
+from optimiser.optimiser import Optimiser
 
-class OptimiseAnimatedGif(Optimiser):
+class OptimiseAnimatedGIF(Optimiser):
     """
     Optimises animated gifs with Gifsicle - http://www.lcdf.org/gifsicle/
     """
 
     def __init__(self):
         # the command to execute this optimiser
-        self.commands = ("gifsicle -O2 __INPUT__ > __OUTPUT__")
+        self.commands = ("gifsicle -O2 __INPUT__ > __OUTPUT__",)
 
         # file extensions this optimiser can work with
         self.extensions = (".gif")

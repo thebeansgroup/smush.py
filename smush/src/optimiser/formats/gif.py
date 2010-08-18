@@ -1,7 +1,7 @@
-from optimiser import Optimiser
-from optimiser.optimise_animated_gif import OptimiseAnimatedGif
+from optimiser.optimiser import Optimiser
+from animated_gif import OptimiseAnimatedGIF
 
-class OptimiseGif(Optimiser):
+class OptimiseGIF(Optimiser):
     """
     Optimises gifs. If they aren't animated, it converts them to pngs with ImageMagick
     """
@@ -9,7 +9,7 @@ class OptimiseGif(Optimiser):
 
     def __init__(self):
         # the command to execute this optimiser
-        self.commands = ("convert __INPUT__ __OUTPUT__")
+        self.commands = ("convert __INPUT__ __OUTPUT__",)
 
         # file extensions this optimiser can work with
         self.extensions = (".gif")
