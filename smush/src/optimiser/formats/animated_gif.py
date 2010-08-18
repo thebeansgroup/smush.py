@@ -18,7 +18,7 @@ class OptimiseAnimatedGIF(Optimiser):
         """
         Tests an image to make sure it can be run through this optimiser
         """
-        if super(input).is_acceptable_image():
+        if super(OptimiseAnimatedGIF, self).is_acceptable_image(input):
             test_command = "identify -format %m" + input
             args = shlex.split(test_command)
             try:

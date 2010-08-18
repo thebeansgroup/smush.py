@@ -18,7 +18,7 @@ class Optimiser(object):
 
 
     def __init__(self):
-        # the number of times the get_command iterator has been run
+        # the number of times the _get_command iterator has been run
         self.iterations = 0
 
     
@@ -27,7 +27,7 @@ class Optimiser(object):
         self.input = input
 
 
-    def get_command(self):
+    def _get_command(self):
         """
         Returns the next command to apply
         """
@@ -55,7 +55,7 @@ class Optimiser(object):
         return command.replace(Optimiser.input_placeholder, input).replace(Optimiser.output_placeholder, output)
 
 
-    def __keep_smallest_file(self, input, output):
+    def _keep_smallest_file(self, input, output):
         """
         Compares the sizes of two files, and discards the larger one
         """
@@ -98,7 +98,7 @@ class Optimiser(object):
             return
 
         while True:
-            command = self.get_command()
+            command = self._get_command()
 
             if not command:
                 break
@@ -117,5 +117,5 @@ class Optimiser(object):
                 sys.exit(1)
 
             # compare file sizes
-            self.__keep_smallest_file(self.input, output_file_name)
+            self._keep_smallest_file(self.input, output_file_name)
 

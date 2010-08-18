@@ -21,6 +21,7 @@ The following lossless optimisations are performed:
 GIFs - If they're animated GIFs, they are optimised with Gifsicle.
        If they aren't animated, they're converted to PNGs with ImageMagick, then optimised as PNGs as below.
 PNGs - Quantised with pngnq, then crushed with pngcrush.
-JPGs - EXIF data is removed (except copyright data).
+JPGs - All EXIF data is removed (it may not be legal to remove copyright notices, so only use this on
+       images you own the copyright to or that don't have copyright notices).
        If they're larger than 10kb, they're converted to progressive JPGs.
        Compression is optimised with jpegtran.

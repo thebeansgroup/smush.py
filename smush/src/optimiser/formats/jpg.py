@@ -10,14 +10,14 @@ class OptimiseJPG(Optimiser):
 
     def __init__(self):
         # the command to execute this optimiser
-        self.commands = ("jpegtran -outfile __OUTPUT__ -optimise __INPUT__",
-            "jpegtran -outfile __OUTPUT__ -progressive __INPUT__")
+        self.commands = ("jpegtran -outfile __OUTPUT__ -optimise -copy none __INPUT__",
+            "jpegtran -outfile __OUTPUT__ -optimise -progressive __INPUT__")
 
         # file extensions this optimiser can work with
         self.extensions = (".jpg", ".jpeg")
 
 
-    def get_command(self):
+    def _get_command(self):
         """
         Returns the next command to apply
         """
