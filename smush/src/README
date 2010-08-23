@@ -38,3 +38,7 @@ able to be used to optimise images that have a reference stored in a database, h
 modifying input file names at all.
 
 It can be run as follows:
+
+    python smush.py /path/to/directory(ies)
+
+where /path/to/directory(ies) is a directory or space-separated list of directories that will be optimised.
