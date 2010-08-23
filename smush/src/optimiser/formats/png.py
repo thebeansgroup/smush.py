@@ -8,6 +8,8 @@ class OptimisePNG(Optimiser):
 
 
     def __init__(self):
+        super(OptimisePNG, self).__init__()
+
         # the command to execute this optimiser
         self.commands = ("pngnq -n 256 -e -opt.png __INPUT__",
             "pngcrush -rem alla -brute -reduce __INPUT__ __OUTPUT__")

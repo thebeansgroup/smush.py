@@ -1,5 +1,6 @@
 import shlex
 import subprocess
+from subprocess import CalledProcessError
 from optimiser.optimiser import Optimiser
 
 class OptimiseAnimatedGIF(Optimiser):
@@ -8,6 +9,8 @@ class OptimiseAnimatedGIF(Optimiser):
     """
 
     def __init__(self):
+        super(OptimiseAnimatedGIF, self).__init__()
+
         # the command to execute this optimiser
         self.commands = ("gifsicle -O2 __INPUT__ --output __OUTPUT__",)
 
@@ -27,6 +30,8 @@ class OptimiseAnimatedGIF(Optimiser):
             except OSError:
                 print "Error executing command %s. Error was %s" % (test_command, OSError)
                 sys.exit(1)
+            except CalledProcessError:
+                return False
 
             return output.upper().startswith("GIFGIF")
         

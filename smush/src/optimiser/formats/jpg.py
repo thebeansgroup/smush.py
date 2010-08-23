@@ -8,6 +8,8 @@ class OptimiseJPG(Optimiser):
 
 
     def __init__(self):
+        super(OptimiseJPG, self).__init__()
+        
         # the command to execute this optimiser
         self.commands = ("jpegtran -outfile __OUTPUT__ -optimise -copy none __INPUT__",
             "jpegtran -outfile __OUTPUT__ -optimise -progressive __INPUT__")

@@ -3,6 +3,7 @@ import sys
 import os
 import os.path
 import getopt
+import time
 from optimiser.formats.png import OptimisePNG
 from optimiser.formats.jpg import OptimiseJPG
 from optimiser.formats.gif import OptimiseGIF
@@ -14,13 +15,16 @@ __date__ ="$Aug 11, 2010 12:21:32 PM$"
 
 class Smush():
     def __init__(self):
-        self.optimisers = { 'PNG': OptimisePNG(),
+        self.optimisers = {
+            'PNG': OptimisePNG(),
             'JPG': OptimiseJPG(),
-            'JPEG': OptimiseJPG(),
             'GIF': OptimiseGIF()
         }
 
+        self.optimisers['JPEG'] = self.optimisers['JPG']
+
         self.__files_scanned = 0
+        self.__start_time = time.time()
 
     def __smush(self, file):
         """
@@ -61,10 +65,22 @@ class Smush():
             callback(nfile)
 
             if os.path.isdir(nfile):
-                self.walk(nfile, callback)
+                self.__walk(nfile, callback)
 
     def stats(self):
-        print "%d files scanned" % (self.__files_scanned)
+        print "\nFinished\n%d files scanned in total:" % (self.__files_scanned)
+
+        for key, optimiser in self.optimisers.iteritems():
+            # only show the jpg stats once
+            if key == 'JPEG':
+                continue
+
+            # divide optimiser.files_optimised by 2 for each optimiser since each optimised file
+            # gets counted twice
+            print "%d %ss optimised out of %d scanned" % (optimiser.files_optimised // 2,
+                key.lower(), optimiser.files_scanned)
+
+        print "Time taken: %.2f seconds" % (time.time() - self.__start_time)
 
 
 def main():
@@ -100,7 +116,7 @@ def main():
 
 
 def usage():
-    print """Usage: """ + sys.argv[0] + """ [OPTIONS] DIRECTORIES...
+    print """Usage: """ + sys.argv[0] + """ [options] DIRECTORIES...
 
 Losslessly optimises image files in DIRECTORIES - this saves bandwidth when
 displaying them on the web.
@@ -109,7 +125,7 @@ WARNING: Existing images in DIRECTORIES will be OVERWRITTEN with optimised
 
   -h, --help         Display this help message and exit
 
-OPTIONS are any of:
+options are any of:
   -r, --recursive    Recurse through given directories optimising images
   -q, --quiet        Don't display optimisation statistics at the end
 """
@@ -119,17 +135,5 @@ if __name__ == "__main__":
     main()
 
 #    optimiser = OptimisePNG()
-#    optimiser.set_input('/home/al/temp/temp-images/todo/logo.png')
-#    optimiser.optimise()
-#
-#    optimiser = OptimiseJPG()
-#    optimiser.set_input('/home/al/temp/temp-images/todo/riding.jpg')
-#    optimiser.optimise()
-#
-#    optimiser = OptimiseGIF()
-#    optimiser.set_input('/home/al/temp/temp-images/todo/matrix.gif')
-#    optimiser.optimise()
-#
-#    optimiser = OptimiseGIF()
-#    optimiser.set_input('/home/al/temp/temp-images/todo/fish.gif')
+#    optimiser.set_input('/path/to/image.png')
 #    optimiser.optimise()

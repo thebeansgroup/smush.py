@@ -13,6 +13,8 @@ class OptimiseGIF(Optimiser):
 
 
     def __init__(self):
+        super(OptimiseGIF, self).__init__()
+
         # the command to execute this optimiser
         self.commands = ("convert __INPUT__ png:__OUTPUT__",
             "pngnq -n 256 -e -opt.gif __INPUT__",
@@ -61,6 +63,7 @@ class OptimiseGIF(Optimiser):
         if (output_size < input_size):
             try:
                 shutil.copyfile(output, input)
+                self.files_optimised += 1
             except IOError:
                 print "Unable to copy %s to %s: %s" % (output, input, IOError)
                 sys.exit(1)

@@ -20,6 +20,8 @@ class Optimiser(object):
     def __init__(self):
         # the number of times the _get_command iterator has been run
         self.iterations = 0
+        self.files_scanned = 0
+        self.files_optimised = 0
 
     
     def set_input(self, input):
@@ -67,6 +69,7 @@ class Optimiser(object):
         if (output_size < input_size):
             try:
                 shutil.copyfile(output, input)
+                self.files_optimised += 1
             except IOError:
                 print "Unable to copy %s to %s: %s" % (output, input, IOError)
                 sys.exit(1)
@@ -97,6 +100,8 @@ class Optimiser(object):
             print self.input, "is not a valid image for this optimiser"
             return
 
+        self.files_scanned += 1
+
         while True:
             command = self._get_command()
 
@@ -111,11 +116,12 @@ class Optimiser(object):
             args = shlex.split(command)
             
             try:
-                subprocess.call(args)
+                return_code = subprocess.call(args)
             except OSError:
                 print "Error executing command %s. Error was %s" % (command, OSError)
                 sys.exit(1)
 
-            # compare file sizes
-            self._keep_smallest_file(self.input, output_file_name)
+            if not return_code:
+                # compare file sizes if the command executed successfully
+                self._keep_smallest_file(self.input, output_file_name)
 
