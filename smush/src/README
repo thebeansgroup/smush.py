@@ -44,6 +44,12 @@ It can be run as follows:
 
 where /path/to/directory(ies) is a directory or space-separated list of directories that will be optimised.
 
+Or type:
+
+    python smush.py --help
+
+for usage information.
+
 It is safe to run this script multiple times on the same files since all operations are lossless. In fact,
 PNG images may be optimised further by repeatedly smushing them.
 
