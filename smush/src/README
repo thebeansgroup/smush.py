@@ -10,6 +10,7 @@ locally.
 
 The following software is required:
 
+  * Python 2.x > 2.7
   * Gifsicle - http://www.lcdf.org/gifsicle/
   * ImageMagick - http://www.imagemagick.org
   * pngnq - http://pngnq.sourceforge.net/

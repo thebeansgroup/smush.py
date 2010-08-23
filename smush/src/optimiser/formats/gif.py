@@ -64,6 +64,7 @@ class OptimiseGIF(Optimiser):
             try:
                 shutil.copyfile(output, input)
                 self.files_optimised += 1
+                self.bytes_saved += (input_size - output_size)
             except IOError:
                 print "Unable to copy %s to %s: %s" % (output, input, IOError)
                 sys.exit(1)

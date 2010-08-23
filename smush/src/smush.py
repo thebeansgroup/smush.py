@@ -68,7 +68,7 @@ class Smush():
                 self.__walk(nfile, callback)
 
     def stats(self):
-        print "\nFinished\n%d files scanned in total:" % (self.__files_scanned)
+        print "\nFinished\n%d files scanned:" % (self.__files_scanned)
 
         for key, optimiser in self.optimisers.iteritems():
             # only show the jpg stats once
@@ -77,10 +77,10 @@ class Smush():
 
             # divide optimiser.files_optimised by 2 for each optimiser since each optimised file
             # gets counted twice
-            print "%d %ss optimised out of %d scanned" % (optimiser.files_optimised // 2,
-                key.lower(), optimiser.files_scanned)
+            print "    %d %ss optimised out of %d scanned. Saved %dkb" % (optimiser.files_optimised // 2,
+                key, optimiser.files_scanned, optimiser.bytes_saved / 1024)
 
-        print "Time taken: %.2f seconds" % (time.time() - self.__start_time)
+        print "Total time taken: %.2f seconds" % (time.time() - self.__start_time)
 
 
 def main():
