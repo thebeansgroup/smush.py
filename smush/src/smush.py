@@ -68,7 +68,7 @@ class Smush():
                 self.__walk(nfile, callback)
 
     def stats(self):
-        print "\nFinished\n%d files scanned:" % (self.__files_scanned)
+        print "\n%d files scanned:" % (self.__files_scanned)
 
         for key, optimiser in self.optimisers.iteritems():
             # only show the jpg stats once
@@ -109,7 +109,11 @@ def main():
     smush = Smush()
 
     for arg in args:
-        smush.process(arg, recursive)
+        try:
+            smush.process(arg, recursive)
+            print "\nSmushing Finished"
+        except KeyboardInterrupt:
+            print "\nSmushing aborted"
 
     if not quiet:
         smush.stats()
