@@ -16,9 +16,9 @@ class OptimiseGIF(Optimiser):
         super(OptimiseGIF, self).__init__()
 
         # the command to execute this optimiser
-        self.commands = ("convert __INPUT__ png:__OUTPUT__",
-            "pngnq -n 256 -e -opt.gif __INPUT__",
-            "pngcrush -rem alla -brute -reduce __INPUT__ __OUTPUT__")
+        self.commands = ('convert "__INPUT__" png:"__OUTPUT__"',
+            'pngnq -n 256 -e -opt.gif "__INPUT__"',
+            'pngcrush -rem alla -brute -reduce "__INPUT__" "__OUTPUT__"')
 
         # file extensions this optimiser can work with
         self.extensions = (".gif")
@@ -47,7 +47,6 @@ class OptimiseGIF(Optimiser):
         """
         Tests an image to see whether it's an animated gif
         """
-
         return self.animated_gif_optimiser._is_acceptable_image(input)
 
 
@@ -71,7 +70,7 @@ class OptimiseGIF(Optimiser):
 
             if self.iterations == 1 and not self.is_animated:
                 self.converted_to_png = True
-
+            
         # delete the output file
         os.unlink(output)
 
@@ -97,4 +96,5 @@ class OptimiseGIF(Optimiser):
             command = self.commands[self.iterations]
 
         self.iterations += 1
+
         return command

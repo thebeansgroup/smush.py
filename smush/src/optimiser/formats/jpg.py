@@ -11,8 +11,8 @@ class OptimiseJPG(Optimiser):
         super(OptimiseJPG, self).__init__()
         
         # the command to execute this optimiser
-        self.commands = ("jpegtran -outfile __OUTPUT__ -optimise -copy none __INPUT__",
-            "jpegtran -outfile __OUTPUT__ -optimise -progressive __INPUT__")
+        self.commands = ('jpegtran -outfile "__OUTPUT__" -optimise -copy none "__INPUT__"',
+            'jpegtran -outfile "__OUTPUT__" -optimise -progressive "__INPUT__"')
 
         # file extensions this optimiser can work with
         self.extensions = (".jpg", ".jpeg")

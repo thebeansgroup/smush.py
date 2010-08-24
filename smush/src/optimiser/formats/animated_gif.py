@@ -12,7 +12,7 @@ class OptimiseAnimatedGIF(Optimiser):
         super(OptimiseAnimatedGIF, self).__init__()
 
         # the command to execute this optimiser
-        self.commands = ("gifsicle -O2 __INPUT__ --output __OUTPUT__",)
+        self.commands = ('gifsicle -O2 "__INPUT__" --output "__OUTPUT__"',)
 
         # file extensions this optimiser can work with
         self.extensions = (".gif")
@@ -23,7 +23,7 @@ class OptimiseAnimatedGIF(Optimiser):
         Tests an image to make sure it can be run through this optimiser
         """
         if super(OptimiseAnimatedGIF, self)._is_acceptable_image(input):
-            test_command = "identify -format %m " + input
+            test_command = 'identify -format %%m "%s"' % input
             args = shlex.split(test_command)
             try:
                 output = subprocess.check_output(args)
@@ -34,5 +34,5 @@ class OptimiseAnimatedGIF(Optimiser):
                 return False
 
             return output.upper().startswith("GIFGIF")
-        
+
         return False

@@ -11,8 +11,8 @@ class OptimisePNG(Optimiser):
         super(OptimisePNG, self).__init__()
 
         # the command to execute this optimiser
-        self.commands = ("pngnq -n 256 -e -opt.png __INPUT__",
-            "pngcrush -rem alla -brute -reduce __INPUT__ __OUTPUT__")
+        self.commands = ('pngnq -n 256 -e -opt.png "__INPUT__"',
+            'pngcrush -rem alla -brute -reduce "__INPUT__" "__OUTPUT__"')
 
         # file extensions this optimiser can work with
         self.extensions = (".png")
