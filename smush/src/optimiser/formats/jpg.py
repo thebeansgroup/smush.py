@@ -7,12 +7,18 @@ class OptimiseJPG(Optimiser):
     """
 
 
-    def __init__(self):
-        super(OptimiseJPG, self).__init__()
-        
+    def __init__(self, **kwargs):
+        super(OptimiseJPG, self).__init__(**kwargs)
+
+        strip_jpg_meta = kwargs.pop('strip_jpg_meta')
+
         # the command to execute this optimiser
-        self.commands = ('jpegtran -outfile "__OUTPUT__" -optimise -copy none "__INPUT__"',
-            'jpegtran -outfile "__OUTPUT__" -optimise -progressive "__INPUT__"')
+        if strip_jpg_meta:
+            self.commands = ('jpegtran -outfile "__OUTPUT__" -optimise -copy none "__INPUT__"',
+                'jpegtran -outfile "__OUTPUT__" -optimise -progressive "__INPUT__"')
+        else:
+            self.commands = ('jpegtran -outfile "__OUTPUT__" -optimise -copy all "__INPUT__"',
+                'jpegtran -outfile "__OUTPUT__" -optimise -progressive -copy all "__INPUT__"')
 
         # file extensions this optimiser can work with
         self.extensions = (".jpg", ".jpeg")

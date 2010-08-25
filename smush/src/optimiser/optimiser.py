@@ -17,7 +17,7 @@ class Optimiser(object):
     output_suffix = "-opt"
 
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         # the number of times the _get_command iterator has been run
         self.iterations = 0
         self.files_scanned = 0

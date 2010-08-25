@@ -12,8 +12,8 @@ class OptimiseGIF(Optimiser):
     """
 
 
-    def __init__(self):
-        super(OptimiseGIF, self).__init__()
+    def __init__(self, **kwargs):
+        super(OptimiseGIF, self).__init__(**kwargs)
 
         # the command to execute this optimiser
         self.commands = ('convert "__INPUT__" png:"__OUTPUT__"',

@@ -14,11 +14,11 @@ __date__ ="$Aug 11, 2010 12:21:32 PM$"
 # there should be an option to keep or strip meta data (e.g. exif data) from jpegs
 
 class Smush():
-    def __init__(self):
+    def __init__(self, **kwargs):
         self.optimisers = {
-            'PNG': OptimisePNG(),
-            'JPG': OptimiseJPG(),
-            'GIF': OptimiseGIF()
+            'PNG': OptimisePNG(**kwargs),
+            'JPG': OptimiseJPG(**kwargs),
+            'GIF': OptimiseGIF(**kwargs)
         }
 
         self.optimisers['JPEG'] = self.optimisers['JPG']
@@ -49,9 +49,12 @@ class Smush():
         if recursive:
             self.__walk(dir, self.__smush)
         else:
-            dir = os.path.abspath(dir)
-            for file in os.listdir(dir):
-                self.__smush(os.path.join(dir, file))
+            if os.path.isdir(dir):
+                dir = os.path.abspath(dir)
+                for file in os.listdir(dir):
+                    self.__smush(os.path.join(dir, file))
+            elif os.path.isfile(dir):
+                self.__smush(dir)
 
 
     def __walk(self, dir, callback):
@@ -85,13 +88,18 @@ class Smush():
 
 def main():
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hrq", ["help", "recursive", "quiet"])
+        opts, args = getopt.getopt(sys.argv[1:], "hrqs", ["help", "recursive", "quiet", "strip-meta"])
     except getopt.GetoptError:
         usage()
         sys.exit(2)
 
+    if len(args) == 0:
+        usage()
+        sys.exit()
+
     recursive = False
     quiet = False
+    strip_jpg_meta = False
 
     for opt, arg in opts:
         if opt in ("-h", "--help"):
@@ -101,12 +109,14 @@ def main():
             recursive = True
         elif opt in ("-q", "--quiet"):
             quiet = True
+        elif opt in ("-s", "--strip-meta"):
+            strip_jpg_meta = True
         else:
             # unsupported option given
             usage()
             sys.exit(2)
 
-    smush = Smush()
+    smush = Smush(strip_jpg_meta=strip_jpg_meta)
 
     for arg in args:
         try:
@@ -120,18 +130,21 @@ def main():
 
 
 def usage():
-    print """Usage: """ + sys.argv[0] + """ [options] DIRECTORIES...
+    print """Losslessly optimises image files - this saves bandwidth when displaying them
+on the web.
 
-Losslessly optimises image files in DIRECTORIES - this saves bandwidth when
-displaying them on the web.
-WARNING: Existing images in DIRECTORIES will be OVERWRITTEN with optimised
-         versions.
+  Usage: """ + sys.argv[0] + """ [options] FILES...
 
+    FILES can be a space-separated list of files or directories to optimise
+
+  **WARNING**: Existing images files  will be OVERWRITTEN with optimised
+               versions.
+
+  Options are any of:
   -h, --help         Display this help message and exit
-
-options are any of:
   -r, --recursive    Recurse through given directories optimising images
   -q, --quiet        Don't display optimisation statistics at the end
+  -s, --strip-meta   Strip all meta-data from JPEGs
 """
 
 
