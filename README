@@ -6,8 +6,7 @@ for display on the web. Unfortunately they don't provide an API, and
 sometimes it's convenient to have a local command-line script.
 
 smush.py uses the same tools as Smushit (read more at:
-http://oreilly.com/server-administration/excerpts/9780596522315/optimizing-images.html), but can be run
-locally.
+http://oreilly.com/server-administration/excerpts/9780596522315/optimizing-images.html), but can be run locally.
 
 The following software is required:
 
@@ -21,30 +20,33 @@ The following software is required:
 The following lossless optimisations are performed:
 
 GIFs - If they're animated GIFs, they are optimised with Gifsicle.
-       If they aren't animated, they're converted to PNGs with ImageMagick, then optimised as PNGs as below.
+       If they aren't animated, they're converted to PNGs with ImageMagick, 
+       then optimised as PNGs as below.
 PNGs - Quantised with pngnq, then crushed with pngcrush.
-JPGs - Optionally remove ALL metadata (it may not be legal to remove copyright notices, so only use this on
-       images you own the copyright to or that don't have copyright notices).
+JPGs - Optionally remove ALL metadata (it may not be legal to remove copyright 
+       notices, so only use this on images you own the copyright to or that 
+       don't have copyright notices).
        If they're larger than 10kb, they're converted to progressive JPGs.
        Compression is optimised with jpegtran.
 
-Note: If a GIF is converted to a PNG, it keeps the old .gif file extension in case the file name is in a
-database.
+Note: If a GIF is converted to a PNG, it keeps the old .gif file extension in 
+case the file name is in a database.
 
 Usage
 -----
 
-This script is intended to be run over a collection of existing images - GIFs (perhaps animated), PNGs and
-JPEGs. It will perform lossless optimisations and will OVERWRITE THE ORIGINAL file. It is intended to be
-able to be used to optimise images that have a reference stored in a database, hence the reason for not
-modifying input file names at all.
+This script is intended to be run over a collection of existing images - GIFs 
+(perhaps animated), PNGs and JPEGs. It will perform lossless optimisations and 
+will OVERWRITE THE ORIGINAL file. It is intended to be able to be used to 
+optimise images that have a reference stored in a database, hence the reason 
+for not modifying input file names at all.
 
 It can be run as follows:
 
     python smush.py /path/to/file/or/directory(ies)
 
-where /path/to/file/or/directory(ies) is a file or directory path, or list of space-separated paths to
-files or directories that will be optimised.
+where /path/to/file/or/directory(ies) is a file or directory path, or list of 
+space-separated paths to files or directories that will be optimised.
 
 Or type:
 
@@ -52,7 +54,8 @@ Or type:
 
 for usage information.
 
-It is safe to run this script multiple times on the same files since all operations are lossless. In fact,
-PNG images may be optimised further by repeatedly smushing them.
+It is safe to run this script multiple times on the same files since all 
+operations are lossless. In fact, PNG images may be optimised further by 
+repeatedly smushing them.
 
 Note: This software has only been tested on Centos 5 Linux.
