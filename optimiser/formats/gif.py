@@ -36,13 +36,6 @@ class OptimiseGIF(Optimiser):
         self.is_animated = False
 
 
-    def _get_output_file_name(self):
-        """
-        Returns the input file name with Optimiser.output_suffix inserted before the extension
-        """
-        return self.input + "-opt.gif"
-
-
     def _is_animated(self, input):
         """
         Tests an image to see whether it's an animated gif

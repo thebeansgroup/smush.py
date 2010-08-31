@@ -66,7 +66,7 @@ class Optimiser(object):
 
         # if the image was optimised (output is smaller than input), overwrite the input file with the output
         # file.
-        if (output_size < input_size):
+        if (output_size > 0 and output_size < input_size):
             try:
                 shutil.copyfile(output, input)
                 self.files_optimised += 1
