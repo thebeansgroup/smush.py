@@ -42,6 +42,7 @@ In the `contrib` directory is a file `pngnq.diff`. This must be applied against
 v1.0 of pngnq.c - the patch has been submitted back to the author, so it's
 possible that later versions will include the patched functionality (check for
 the existence of a '-o' option that allows an output file name to be specified).
+In that case, the it's not necessary to apply the patch.
 
 Apply the diff using `patch`, then configure and make as usual.
 
