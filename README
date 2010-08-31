@@ -8,15 +8,6 @@ sometimes it's convenient to have a local command-line script.
 smush.py uses the same tools as Smushit (read more at:
 http://oreilly.com/server-administration/excerpts/9780596522315/optimizing-images.html), but can be run locally.
 
-The following software is required:
-
-  * Python 2.x >= 2.7
-  * Gifsicle - http://www.lcdf.org/gifsicle/
-  * ImageMagick - http://www.imagemagick.org
-  * pngnq - http://pngnq.sourceforge.net/ (requires libpng-devel)
-  * pngcrush - http://pmt.sourceforge.net/pngcrush/
-  * jpegtran from libjpeg
-
 The following lossless optimisations are performed:
 
 GIFs - If they're animated GIFs, they are optimised with Gifsicle.
@@ -31,6 +22,28 @@ JPGs - Optionally remove ALL metadata (it may not be legal to remove copyright
 
 Note: If a GIF is converted to a PNG, it keeps the old .gif file extension in 
 case the file name is in a database.
+
+Installation
+-------------
+
+Install all of the following required software:
+
+  * Python 2.x >= 2.7
+  * Gifsicle - http://www.lcdf.org/gifsicle/
+  * ImageMagick - http://www.imagemagick.org
+  * pngcrush - http://pmt.sourceforge.net/pngcrush/
+  * jpegtran from libjpeg
+
+The following software must be patched first (read on):
+
+  * pngnq - http://pngnq.sourceforge.net/ (requires libpng-devel)
+
+In the `contrib` directory is a file `pngnq.diff`. This must be applied against
+v1.0 of pngnq.c - the patch has been submitted back to the author, so it's
+possible that later versions will include the patched functionality (check for
+the existence of a '-o' option that allows an output file name to be specified).
+
+Apply the diff using `patch`, then configure and make as usual.
 
 Usage
 -----
@@ -57,5 +70,9 @@ for usage information.
 It is safe to run this script multiple times on the same files since all 
 operations are lossless. In fact, PNG images may be optimised further by 
 repeatedly smushing them.
+
+Unless the `-q` option is given, statistics will be displayed when
+smushing has finished - these stats are approximate. GIFGIF refers to
+animated GIFs.
 
 Note: This software has only been tested on Centos 5 Linux.

@@ -17,7 +17,7 @@ class OptimiseGIF(Optimiser):
 
         # the command to execute this optimiser
         self.commands = ('convert "__INPUT__" png:"__OUTPUT__"',
-            'pngnq -n 256 -e -opt.smush "__INPUT__"',
+            'pngnq -n 256 -o "__OUTPUT__" "__INPUT__"',
             'pngcrush -rem alla -brute -reduce "__INPUT__" "__OUTPUT__"')
 
         # variable so we can easily determine whether a gif is animated or not
