@@ -1,81 +1,41 @@
---- /home/al/projects/pngnq-1.0/src/pngnq.c	2010-08-31 16:04:25.000000000 +0100
-+++ src/pngnq.c	2009-05-20 13:04:15.000000000 +0100
-@@ -55,7 +55,6 @@
-    -s Speed/quality: 1 = slow, best quality, 3 = good quality, 10 = fast, lower quality.\n\
-    -g Image gamma. 1.0 = linear, 2.2 = monitor gamma. Defaults to 1.8.\n\
-    -e Specify the new extension for quantized files. Default -nq8.png\n\
--   -o Specify output filename. Disables -e and -d options\n\
-    -d Directory to put quantized images into.\n\
-    -v Verbose mode. Prints status messages.\n\
-    -V Print version number and library versions.\n\
-@@ -108,7 +107,7 @@
- static mainprog_info rwpng_info;
- 
- 
--static int pngnq(char* filename, char* newext, char* dir, char* outname,
-+static int pngnq(char* filename, char* newext, char* dir,
- 		 int sample_factor, int n_colors, int verbose,  
- 		 int using_stdin, int force, int use_floyd, double force_gamma);
- 
-@@ -121,7 +120,6 @@
-   char *input_file_name = NULL;
-   char *output_file_extension = "-nq8.png";
-   char *output_directory = NULL;
--  char *output_file_name = NULL;
- 
-   int using_stdin = FALSE;
-   int c; /* argument character */
-@@ -134,7 +132,7 @@
-   double force_gamma = 0;
- 
-   /* Parse arguments */
--  while((c = getopt(argc,argv,"hVvfn:s:d:e:g:Q:o:"))!=-1){
-+  while((c = getopt(argc,argv,"hVvfn:s:d:e:g:Q:"))!=-1){
-     switch(c){
-     case 's':
-       sample_factor = atoi(optarg);
-@@ -184,9 +182,6 @@
-     case 'e':
-       output_file_extension = optarg;
-       break;
--    case 'o':
--      output_file_name = optarg;
--      break;
-     default:
-       fprintf(stderr,PNGNQ_USAGE);
-       exit(EXIT_FAILURE);
-@@ -213,7 +208,7 @@
-    
-     PNGNQ_MESSAGE("  quantizing: %s \n",input_file_name);
- 		
--    retval = pngnq(input_file_name, output_file_extension, output_directory, output_file_name,
-+    retval = pngnq(input_file_name, output_file_extension, output_directory,
- 		   sample_factor, n_colours, verbose, using_stdin,force,use_floyd,force_gamma);
- 
-     if(retval){
-@@ -435,10 +430,11 @@
- #endif
- }
- 
--static int pngnq(char* filename, char* newext, char* newdir, char* outname,
-+static int pngnq(char* filename, char* newext, char* newdir, 
- 		 int sample_factor, int n_colours, int verbose, 
- 		 int using_stdin, int force, int quantization_method, double force_gamma)
- {
-+  char *outname = NULL;
-   FILE *infile = NULL;
-   FILE *outfile = NULL;
- 
-@@ -475,10 +471,8 @@
-     outfile = stdout;
-   }
-   else
--  {
--      if (!outname) {
--        outname = createoutname(filename,newext,newdir);
--      }
-+  { 
-+    outname = createoutname(filename,newext,newdir);
- 
-     if (!force) {
-       if ((outfile = fopen(outname, "rb")) != NULL) {
+57a58
+>    -o Specify output filename. Disables -e and -d options\n\
+110c111
+< static int pngnq(char* filename, char* newext, char* dir,
+---
+> static int pngnq(char* filename, char* newext, char* dir, char* outname,
+122a124
+>   char *output_file_name = NULL;
+135c137
+<   while((c = getopt(argc,argv,"hVvfn:s:d:e:g:Q:"))!=-1){
+---
+>   while((c = getopt(argc,argv,"hVvfn:s:d:e:g:Q:o:"))!=-1){
+184a187,189
+>     case 'o':
+>       output_file_name = optarg;
+>       break;
+211c216
+<     retval = pngnq(input_file_name, output_file_extension, output_directory,
+---
+>     retval = pngnq(input_file_name, output_file_extension, output_directory, output_file_name,
+433c438
+< static int pngnq(char* filename, char* newext, char* newdir, 
+---
+> static int pngnq(char* filename, char* newext, char* newdir, char* outname,
+437d441
+<   char *outname = NULL;
+474,475c478,481
+<   { 
+<     outname = createoutname(filename,newext,newdir);
+---
+>   {
+>       if (!outname) {
+>         outname = createoutname(filename,newext,newdir);
+>       }
+673,678d678
+<   /* Clean up file name */
+<   if(outname){
+<     free(outname);
+<     outname = NULL;
+<   }
+< 
