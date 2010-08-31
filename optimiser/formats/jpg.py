@@ -20,8 +20,8 @@ class OptimiseJPG(Optimiser):
             self.commands = ('jpegtran -outfile "__OUTPUT__" -optimise -copy all "__INPUT__"',
                 'jpegtran -outfile "__OUTPUT__" -optimise -progressive -copy all "__INPUT__"')
 
-        # file extensions this optimiser can work with
-        self.extensions = (".jpg", ".jpeg")
+        # format as returned by 'identify'
+        self.format = "JPEG"
 
 
     def _get_command(self):

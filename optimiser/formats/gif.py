@@ -17,17 +17,17 @@ class OptimiseGIF(Optimiser):
 
         # the command to execute this optimiser
         self.commands = ('convert "__INPUT__" png:"__OUTPUT__"',
-            'pngnq -n 256 -e -opt.gif "__INPUT__"',
+            'pngnq -n 256 -e -opt.smush "__INPUT__"',
             'pngcrush -rem alla -brute -reduce "__INPUT__" "__OUTPUT__"')
-
-        # file extensions this optimiser can work with
-        self.extensions = (".gif")
 
         # variable so we can easily determine whether a gif is animated or not
         self.animated_gif_optimiser = OptimiseAnimatedGIF()
 
         self.converted_to_png = False
         self.is_animated = False
+
+        # format as returned by 'identify'
+        self.format = "GIF"
 
 
     def set_input(self, input):

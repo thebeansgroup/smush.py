@@ -14,7 +14,7 @@ class Optimiser(object):
     output_placeholder = "__OUTPUT__"
 
     # string to place between the basename and extension of output images
-    output_suffix = "-opt"
+    output_suffix = "-opt.smush"
 
 
     def __init__(self, **kwargs):
@@ -47,8 +47,7 @@ class Optimiser(object):
         """
         Returns the input file name with Optimiser.output_suffix inserted before the extension
         """
-        (basename, extension) = os.path.splitext(self.input)
-        return basename + Optimiser.output_suffix + extension
+        return self.input + Optimiser.output_suffix
 
 
     def __replace_placeholders(self, command, input, output):
@@ -84,12 +83,20 @@ class Optimiser(object):
         """
         Returns whether the input image can be used by a particular optimiser.
 
-        All optimisers are expected to define a tuple called 'extensions' containing valid file
-        extensions that can be used, converted to lowercase.
+        All optimisers are expected to define a variable called 'format' containing the file format
+        as returned by 'identify -format %m'
         """
-        (basename, extension) = os.path.splitext(input.lower())
+        test_command = 'identify -format %%m "%s"' % input
+        args = shlex.split(test_command)
+        try:
+            output = subprocess.check_output(args)
+        except OSError:
+            print "Error executing command %s. Error was %s" % (test_command, OSError)
+            sys.exit(1)
+        except CalledProcessError:
+            return False
 
-        return extension in self.extensions
+        return output.startswith(self.format)
 
 
     def optimise(self):
@@ -126,4 +133,3 @@ class Optimiser(object):
             if not return_code:
                 # compare file sizes if the command executed successfully
                 self._keep_smallest_file(self.input, output_file_name)
-

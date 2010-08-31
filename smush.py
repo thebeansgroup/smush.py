@@ -4,9 +4,13 @@ import os
 import os.path
 import getopt
 import time
+import shlex
+import subprocess
+from subprocess import CalledProcessError
 from optimiser.formats.png import OptimisePNG
 from optimiser.formats.jpg import OptimiseJPG
 from optimiser.formats.gif import OptimiseGIF
+from optimiser.formats.animated_gif import OptimiseAnimatedGIF
 
 __author__="al"
 __date__ ="$Aug 11, 2010 12:21:32 PM$"
@@ -17,21 +21,20 @@ class Smush():
     def __init__(self, **kwargs):
         self.optimisers = {
             'PNG': OptimisePNG(**kwargs),
-            'JPG': OptimiseJPG(**kwargs),
-            'GIF': OptimiseGIF(**kwargs)
+            'JPEG': OptimiseJPG(**kwargs),
+            'GIF': OptimiseGIF(**kwargs),
+            'GIFGIF': OptimiseAnimatedGIF(**kwargs)
         }
-
-        self.optimisers['JPEG'] = self.optimisers['JPG']
 
         self.__files_scanned = 0
         self.__start_time = time.time()
+
 
     def __smush(self, file):
         """
         Optimises a file
         """
-        (basename, extension) = os.path.splitext(file)
-        key = extension.lstrip('.').upper()
+        key = self.__get_image_format(file)
 
         if key in self.optimisers:
             print "optimising file ", file
@@ -70,14 +73,28 @@ class Smush():
             if os.path.isdir(nfile):
                 self.__walk(nfile, callback)
 
+
+    def __get_image_format(self, input):
+        """
+        Returns the image format for a file.
+        """
+        test_command = 'identify -format %%m "%s"' % input
+        args = shlex.split(test_command)
+        try:
+            output = subprocess.check_output(args)
+        except OSError:
+            print "Error executing command %s. Error was %s" % (test_command, OSError)
+            sys.exit(1)
+        except CalledProcessError:
+            return False
+
+        return output[:6].strip()
+
+
     def stats(self):
         print "\n%d files scanned:" % (self.__files_scanned)
 
         for key, optimiser in self.optimisers.iteritems():
-            # only show the jpg stats once
-            if key == 'JPEG':
-                continue
-
             # divide optimiser.files_optimised by 2 for each optimiser since each optimised file
             # gets counted twice
             print "    %d %ss optimised out of %d scanned. Saved %dkb" % (optimiser.files_optimised // 2,
