@@ -118,7 +118,7 @@ class Smush():
 
 def main():
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hrqs", ["help", "recursive", "quiet", "strip-meta", "exclude="])
+        opts, args = getopt.getopt(sys.argv[1:], "hrqs", ["help", "recursive", "quiet", "strip-meta", "exclude=", "list-only"])
     except getopt.GetoptError:
         usage()
         sys.exit(2)
@@ -131,6 +131,7 @@ def main():
     quiet = False
     strip_jpg_meta = False
     exclude = ['.bzr', '.git', '.hg', '.svn']
+    list_only = False
 
     for opt, arg in opts:
         if opt in ("-h", "--help"):
@@ -144,12 +145,14 @@ def main():
             strip_jpg_meta = True
         elif opt in ("--exclude"):
             exclude.extend(arg.strip().split(','))
+        elif opt in ("--list-only"):
+            list_only = True
         else:
             # unsupported option given
             usage()
             sys.exit(2)
 
-    smush = Smush(strip_jpg_meta=strip_jpg_meta, exclude=exclude)
+    smush = Smush(strip_jpg_meta=strip_jpg_meta, exclude=exclude, list_only=list_only)
 
     for arg in args:
         try:
@@ -158,7 +161,7 @@ def main():
         except KeyboardInterrupt:
             print "\nSmushing aborted"
 
-    if not quiet:
+    if not quiet or list_only:
         smush.stats()
 
 

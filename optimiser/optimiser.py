@@ -23,7 +23,7 @@ class Optimiser(object):
         self.files_scanned = 0
         self.files_optimised = 0
         self.bytes_saved = 0
-
+        self.list_only = kwargs.get('list_only')
     
     def set_input(self, input):
         self.iterations = 0
@@ -131,5 +131,22 @@ class Optimiser(object):
                 sys.exit(1)
 
             if not return_code:
-                # compare file sizes if the command executed successfully
-                self._keep_smallest_file(self.input, output_file_name)
+                if self.list_only == False:
+                    # compare file sizes if the command executed successfully
+                    self._keep_smallest_file(self.input, output_file_name)
+                else:
+                    self._list_only(self.input, output_file_name)
+
+    def _list_only(self, input, output):
+        """
+        Always keeps input, but still compares the sizes of two files
+        """
+        input_size = os.path.getsize(input)
+        output_size = os.path.getsize(output)
+
+        if (output_size > 0 and output_size < input_size):
+            self.files_optimised += 1
+            self.bytes_saved += (input_size - output_size)
+        
+        # delete the output file
+        os.unlink(output)
