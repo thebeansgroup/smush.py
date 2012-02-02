@@ -28,9 +28,11 @@ class Smush():
 
         self.__files_scanned = 0
         self.__start_time = time.time()
-        self.excludes = {}
-        for dir in kwargs.get('excludes'):
-            self.excludes[dir] = True
+        self.exclude = {}
+        for dir in kwargs.get('exclude'):
+            if len(dir) == 0:
+                continue
+            self.exclude[dir] = True
 
     def __smush(self, file):
         """
@@ -57,7 +59,7 @@ class Smush():
             if os.path.isdir(dir):
                 dir = os.path.abspath(dir)
                 for file in os.listdir(dir):
-                    if self.__checkExcludes(file):
+                    if self.__checkExclude(file):
                         continue
                     self.__smush(os.path.join(dir, file))
             elif os.path.isfile(dir):
@@ -71,7 +73,7 @@ class Smush():
         print "walking ", dir
 
         for file in os.listdir(dir):
-            if self.__checkExcludes(file):
+            if self.__checkExclude(file):
                 continue
             nfile = os.path.join(dir, file)
             callback(nfile)
@@ -108,15 +110,15 @@ class Smush():
 
         print "Total time taken: %.2f seconds" % (time.time() - self.__start_time)
 
-    def __checkExcludes(self, file):
-        if file in self.excludes:
+    def __checkExclude(self, file):
+        if file in self.exclude:
             print "%s is excluded." % (file)
             return True
         return False
 
 def main():
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hrqs", ["help", "recursive", "quiet", "strip-meta"])
+        opts, args = getopt.getopt(sys.argv[1:], "hrqs", ["help", "recursive", "quiet", "strip-meta", "exclude="])
     except getopt.GetoptError:
         usage()
         sys.exit(2)
@@ -128,7 +130,7 @@ def main():
     recursive = False
     quiet = False
     strip_jpg_meta = False
-    excludes = ['.bzr', '.git', '.hg', '.svn']
+    exclude = ['.bzr', '.git', '.hg', '.svn']
 
     for opt, arg in opts:
         if opt in ("-h", "--help"):
@@ -140,12 +142,14 @@ def main():
             quiet = True
         elif opt in ("-s", "--strip-meta"):
             strip_jpg_meta = True
+        elif opt in ("--exclude"):
+            exclude.extend(arg.strip().split(','))
         else:
             # unsupported option given
             usage()
             sys.exit(2)
 
-    smush = Smush(strip_jpg_meta=strip_jpg_meta, excludes=excludes)
+    smush = Smush(strip_jpg_meta=strip_jpg_meta, exclude=exclude)
 
     for arg in args:
         try:
@@ -174,6 +178,7 @@ on the web.
   -r, --recursive    Recurse through given directories optimising images
   -q, --quiet        Don't display optimisation statistics at the end
   -s, --strip-meta   Strip all meta-data from JPEGs
+  --exclude=EXCLUDES comma separated value for excluding files
 """
 
 
