@@ -1,0 +1,109 @@
+Binary files pngnq-1.1/.DS_Store and pngnq-1.1-mod/.DS_Store differ
+diff -rupN pngnq-1.1/src/pngnq.c pngnq-1.1-mod/src/pngnq.c
+--- pngnq-1.1/src/pngnq.c	2011-06-16 21:32:36.000000000 -0400
++++ pngnq-1.1-mod/src/pngnq.c	2012-02-02 11:52:57.000000000 -0500
+@@ -52,6 +52,7 @@ Options:\n\
+    -n Number of colours the quantized image is to contain. Range: 16 to 256. Defaults to 256.\n\
+    -d Directory to put quantized images into.\n\
+    -e Specify the new extension for quantized files. Default -nq8.png\n\
++   -o Specify output filename. Disables -e and -d options\n\
+    -f Force ovewriting of files.\n\
+    -g Image gamma. 1.0 = linear, 2.2 = monitor gamma. Defaults to 1.8.\n\
+    -h Print this help.\n\n\
+@@ -107,7 +108,7 @@ typedef struct {
+ static mainprog_info rwpng_info;
+ 
+ 
+-static int pngnq(char* filename, char* newext, char* dir,
++static int pngnq(char* filename, char* newext, char* dir, char* outname,
+ 		 int sample_factor, int n_colors, int verbose,  
+ 		 int using_stdin, int force, int use_floyd, double force_gamma);
+ 
+@@ -120,6 +121,7 @@ int main(int argc, char** argv)
+   char *input_file_name = NULL;
+   char *output_file_extension = "-nq8.png";
+   char *output_directory = NULL;
++  char *output_file_name = NULL;
+ 
+   int using_stdin = FALSE;
+   int c; /* argument character */
+@@ -132,7 +134,7 @@ int main(int argc, char** argv)
+   double force_gamma = 0;
+ 
+   /* Parse arguments */
+-  while((c = getopt(argc,argv,"hVvfn:s:d:e:g:Q:"))!=-1){
++  while((c = getopt(argc,argv,"hVvfn:s:d:e:g:Q:o:"))!=-1){
+     switch(c){
+     case 's':
+       sample_factor = atoi(optarg);
+@@ -182,6 +184,9 @@ int main(int argc, char** argv)
+     case 'e':
+       output_file_extension = optarg;
+       break;
++    case 'o':
++      output_file_name = optarg;
++      break;
+     default:
+       fprintf(stderr,PNGNQ_USAGE);
+       exit(EXIT_FAILURE);
+@@ -208,7 +213,7 @@ int main(int argc, char** argv)
+    
+     PNGNQ_MESSAGE("  quantizing: %s \n",input_file_name);
+ 		
+-    retval = pngnq(input_file_name, output_file_extension, output_directory,
++    retval = pngnq(input_file_name, output_file_extension, output_directory, output_file_name,
+ 		   sample_factor, n_colours, verbose, using_stdin,force,use_floyd,force_gamma);
+ 
+     if(retval){
+@@ -430,11 +435,10 @@ static void set_binary_mode(FILE *fp)
+ #endif
+ }
+ 
+-static int pngnq(char* filename, char* newext, char* newdir, 
++static int pngnq(char* filename, char* newext, char* newdir, char* outname,
+ 		 int sample_factor, int n_colours, int verbose, 
+ 		 int using_stdin, int force, int quantization_method, double force_gamma)
+ {
+-  char *outname = NULL;
+   FILE *infile = NULL;
+   FILE *outfile = NULL;
+ 
+@@ -484,8 +488,10 @@ static int pngnq(char* filename, char* n
+     outfile = stdout;
+   }
+   else
+-  { 
+-    outname = createoutname(filename,newext,newdir);
++  {
++      if (!outname) {
++        outname = createoutname(filename,newext,newdir);
++      }
+ 
+     if (!force) {
+       if ((outfile = fopen(outname, "rb")) != NULL) {
+@@ -670,12 +676,6 @@ static int pngnq(char* filename, char* n
+     row_pointers = rwpng_info.row_pointers = NULL;
+   }
+ 
+-  /* Clean up file name */
+-  if(outname){
+-    free(outname);
+-    outname = NULL;
+-  }
+-
+   return 0;
+ }
+ 
+diff -rupN pngnq-1.1/src/rwpng.c pngnq-1.1-mod/src/rwpng.c
+--- pngnq-1.1/src/rwpng.c	2010-05-10 18:42:56.000000000 -0400
++++ pngnq-1.1-mod/src/rwpng.c	2012-02-02 14:58:15.000000000 -0500
+@@ -33,6 +33,9 @@
+ #include <stdlib.h>
+ 
+ #include "png.h"        /* libpng header; includes zlib.h */
++#ifdef __APPLE__
++    #include "zlib.h"   /* Lion libpng is newer and zlib is not in there */
++#endif
+ #include "rwpng.h"      /* typedefs, common macros, public prototypes */
+ 
+ /* future versions of libpng will provide this macro: */
