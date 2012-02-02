@@ -28,7 +28,9 @@ class Smush():
 
         self.__files_scanned = 0
         self.__start_time = time.time()
-
+        self.excludes = {}
+        for dir in kwargs.get('excludes'):
+            self.excludes[dir] = True
 
     def __smush(self, file):
         """
@@ -55,6 +57,8 @@ class Smush():
             if os.path.isdir(dir):
                 dir = os.path.abspath(dir)
                 for file in os.listdir(dir):
+                    if self.__checkExcludes(file):
+                        continue
                     self.__smush(os.path.join(dir, file))
             elif os.path.isfile(dir):
                 self.__smush(dir)
@@ -67,6 +71,8 @@ class Smush():
         print "walking ", dir
 
         for file in os.listdir(dir):
+            if self.__checkExcludes(file):
+                continue
             nfile = os.path.join(dir, file)
             callback(nfile)
 
@@ -102,6 +108,11 @@ class Smush():
 
         print "Total time taken: %.2f seconds" % (time.time() - self.__start_time)
 
+    def __checkExcludes(self, file):
+        if file in self.excludes:
+            print "%s is excluded." % (file)
+            return True
+        return False
 
 def main():
     try:
@@ -117,6 +128,7 @@ def main():
     recursive = False
     quiet = False
     strip_jpg_meta = False
+    excludes = ['.bzr', '.git', '.hg', '.svn']
 
     for opt, arg in opts:
         if opt in ("-h", "--help"):
@@ -133,7 +145,7 @@ def main():
             usage()
             sys.exit(2)
 
-    smush = Smush(strip_jpg_meta=strip_jpg_meta)
+    smush = Smush(strip_jpg_meta=strip_jpg_meta, excludes=excludes)
 
     for arg in args:
         try:
