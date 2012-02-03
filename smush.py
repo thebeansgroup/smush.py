@@ -101,13 +101,19 @@ class Smush():
 
     def stats(self):
         print "\n%d files scanned:" % (self.__files_scanned)
+        arr = []
 
         for key, optimiser in self.optimisers.iteritems():
             # divide optimiser.files_optimised by 2 for each optimiser since each optimised file
             # gets counted twice
             print "    %d %ss optimised out of %d scanned. Saved %dkb" % (optimiser.files_optimised // 2,
                 key, optimiser.files_scanned, optimiser.bytes_saved / 1024)
+            arr.extend(optimiser.array_optimised_file)
 
+        if (len(arr) != 0):
+            print "Modified files:"
+            for filename in arr:
+                print "    %s" % filename
         print "Total time taken: %.2f seconds" % (time.time() - self.__start_time)
 
     def __checkExclude(self, file):

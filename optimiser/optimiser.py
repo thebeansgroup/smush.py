@@ -24,6 +24,7 @@ class Optimiser(object):
         self.files_optimised = 0
         self.bytes_saved = 0
         self.list_only = kwargs.get('list_only')
+        self.array_optimised_file = []
     
     def set_input(self, input):
         self.iterations = 0
@@ -147,6 +148,7 @@ class Optimiser(object):
         if (output_size > 0 and output_size < input_size):
             self.files_optimised += 1
             self.bytes_saved += (input_size - output_size)
+            self.array_optimised_file.append(input)
         
         # delete the output file
         os.unlink(output)
