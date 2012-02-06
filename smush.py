@@ -72,7 +72,7 @@ class Smush():
         """ Walks a directory, and executes a callback on each file """
         dir = os.path.abspath(dir)
 
-        logging.info("walking ", dir)
+        logging.info("walking %s" % (dir))
 
         for file in os.listdir(dir):
             if self.__checkExclude(file):
@@ -90,16 +90,16 @@ class Smush():
         """
         test_command = 'identify -format %%m "%s"' % input
         args = shlex.split(test_command)
+
         try:
-            output = subprocess.check_output(args, stderr=subprocess.STDOUT)
-            # output = subprocess.Popen(args, stdout=subprocess.PIPE).communicate()[0]
+            output = subprocess.Popen(args, stdout=subprocess.PIPE).communicate()[0]
         except OSError:
             logging.error("Error executing command %s. Error was %s" % (test_command, OSError))
             sys.exit(1)
-        except CalledProcessError:
+        except:
             # most likely no file matched
             if self.quiet == False:
-                logging.warning("Cannot identify file. %s" % CalledProcessError)
+                logging.warning("Cannot identify file.")
             return False
 
         return output[:6].strip()
@@ -129,34 +129,6 @@ class Smush():
             return True
         return False
 
-def patchingSubprocess():
-    try:
-        ret = callable( getattr(subprocess, 'check_output') )
-    except AttributeError:
-        ret = False
-        def check_output(*popenargs, **kwargs):
-            if 'stdout' in kwargs:
-                raise ValueError('stdout argument not allowed, it will be overridden.')
-            process = subprocess.Popen(stdout=subprocess.PIPE, *popenargs, **kwargs)
-            output, unused_err = process.communicate()
-            retcode = process.poll()
-            if retcode:
-                cmd = kwargs.get("args")
-                if cmd is None:
-                    cmd = popenargs[0]
-                    raise subprocess.CalledProcessError(retcode, cmd, output=output)
-                return output
-        subprocess.check_output = check_output
-        class CalledProcessError(Exception):
-            def __init__(self, returncode, cmd, output=None):
-                self.returncode = returncode
-                self.cmd = cmd
-                self.output = output
-                def __str__(self):
-                    return "Command '%s' returned non-zero exit status %d" % (
-                        self.cmd, self.returncode)
-    return not ret
-            
 def main():
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hrqs", ["help", "recursive", "quiet", "strip-meta", "exclude=", "list-only"])
@@ -168,7 +140,6 @@ def main():
         usage()
         sys.exit()
 
-    patchingSubprocess()
     recursive = False
     quiet = False
     strip_jpg_meta = False
@@ -189,7 +160,7 @@ def main():
             exclude.extend(arg.strip().split(','))
         elif opt in ("--list-only"):
             list_only = True
-            quiet = True
+            # quiet = True
         else:
             # unsupported option given
             usage()
@@ -215,10 +186,9 @@ def main():
         except KeyboardInterrupt:
             logging.info("\nSmushing aborted")
 
-    if not quiet or list_only:
-        arr = smush.stats()
-        if list_only and len(arr) > 0:
-            sys.exit(1)
+    arr = smush.stats()
+    if list_only and len(arr) > 0:
+        sys.exit(1)
     sys.exit(0)
 
 

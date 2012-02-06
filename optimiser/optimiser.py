@@ -91,12 +91,16 @@ class Optimiser(object):
         """
         test_command = 'identify -format %%m "%s"' % input
         args = shlex.split(test_command)
+
         try:
-            output = subprocess.check_output(args)
+            output = subprocess.Popen(args, stdout=subprocess.PIPE).communicate()[0]
         except OSError:
             logging.error("Error executing command %s. Error was %s" % (test_command, OSError))
             sys.exit(1)
-        except CalledProcessError:
+        except:
+            # most likely no file matched
+            if self.quiet == False:
+                logging.warning("Cannot identify file.")
             return False
 
         return output.startswith(self.format)
@@ -109,7 +113,7 @@ class Optimiser(object):
         """
         # make sure the input image is acceptable for this optimiser
         if not self._is_acceptable_image(self.input):
-            logging.warning(self.input, "is not a valid image for this optimiser")
+            logging.warning("%s is not a valid image for this optimiser" % (self.input))
             return
 
         self.files_scanned += 1
@@ -127,7 +131,7 @@ class Optimiser(object):
             output_file_name = self._get_output_file_name()
             command = self.__replace_placeholders(command, self.input, output_file_name)
 
-            logging.info("Executing " + command)
+            logging.info("Executing %s" % (command))
             
             args = shlex.split(command)
             
