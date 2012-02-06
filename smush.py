@@ -91,7 +91,8 @@ class Smush():
         test_command = 'identify -format %%m "%s"' % input
         args = shlex.split(test_command)
         try:
-            output = subprocess.check_output(args, stderr=subprocess.STDOUT)
+            # output = subprocess.check_output(args, stderr=subprocess.STDOUT)
+            output = subprocess.Popen(args, stdout=subprocess.PIPE).communicate()[0]
         except OSError:
             logging.error("Error executing command %s. Error was %s" % (test_command, OSError))
             sys.exit(1)
