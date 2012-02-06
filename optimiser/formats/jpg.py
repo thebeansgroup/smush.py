@@ -1,5 +1,6 @@
 import os.path
 from optimiser.optimiser import Optimiser
+import logging
 
 class OptimiseJPG(Optimiser):
     """
@@ -37,7 +38,7 @@ class OptimiseJPG(Optimiser):
                         
             # for the next one, only return the second command if file size > 10kb
             if os.path.getsize(self.input) > 10000:
-                print "File is > 10kb - will be converted to progressive"
+                logging.error("File is > 10kb - will be converted to progressive")
                 return self.commands[1]
 
         return False

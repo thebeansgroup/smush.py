@@ -11,6 +11,7 @@ from optimiser.formats.png import OptimisePNG
 from optimiser.formats.jpg import OptimiseJPG
 from optimiser.formats.gif import OptimiseGIF
 from optimiser.formats.animated_gif import OptimiseAnimatedGIF
+import logging
 
 __author__="al"
 __date__ ="$Aug 11, 2010 12:21:32 PM$"
@@ -33,6 +34,7 @@ class Smush():
             if len(dir) == 0:
                 continue
             self.exclude[dir] = True
+        self.quiet = kwargs.get('quiet')
 
     def __smush(self, file):
         """
@@ -41,7 +43,7 @@ class Smush():
         key = self.__get_image_format(file)
 
         if key in self.optimisers:
-            print "optimising file ", file
+            logging.info("optimising file %s" % (file))
 
             self.__files_scanned += 1
 
@@ -70,7 +72,7 @@ class Smush():
         """ Walks a directory, and executes a callback on each file """
         dir = os.path.abspath(dir)
 
-        print "walking ", dir
+        logging.info("walking ", dir)
 
         for file in os.listdir(dir):
             if self.__checkExclude(file):
@@ -89,11 +91,14 @@ class Smush():
         test_command = 'identify -format %%m "%s"' % input
         args = shlex.split(test_command)
         try:
-            output = subprocess.check_output(args)
+            output = subprocess.check_output(args, stderr=subprocess.STDOUT)
         except OSError:
-            print "Error executing command %s. Error was %s" % (test_command, OSError)
+            logging.error("Error executing command %s. Error was %s" % (test_command, OSError))
             sys.exit(1)
         except CalledProcessError:
+            # most likely no file matched
+            if self.quiet == False:
+                logging.warning("Cannot identify file. %s" % CalledProcessError)
             return False
 
         return output[:6].strip()
@@ -115,10 +120,11 @@ class Smush():
             for filename in arr:
                 print "    %s" % filename
         print "Total time taken: %.2f seconds" % (time.time() - self.__start_time)
+        return arr
 
     def __checkExclude(self, file):
         if file in self.exclude:
-            print "%s is excluded." % (file)
+            logging.info("%s is excluded." % (file))
             return True
         return False
 
@@ -153,22 +159,37 @@ def main():
             exclude.extend(arg.strip().split(','))
         elif opt in ("--list-only"):
             list_only = True
+            quiet = True
         else:
             # unsupported option given
             usage()
             sys.exit(2)
 
-    smush = Smush(strip_jpg_meta=strip_jpg_meta, exclude=exclude, list_only=list_only)
+    if quiet == True:
+        logging.basicConfig(
+            level=logging.WARNING,
+            format="%(asctime)s %(levelname)s %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S")
+    else:
+        logging.basicConfig(
+            level=logging.DEBUG,
+            format="%(asctime)s %(levelname)s %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S")
+
+    smush = Smush(strip_jpg_meta=strip_jpg_meta, exclude=exclude, list_only=list_only, quiet=quiet)
 
     for arg in args:
         try:
             smush.process(arg, recursive)
-            print "\nSmushing Finished"
+            logging.info("\nSmushing Finished")
         except KeyboardInterrupt:
-            print "\nSmushing aborted"
+            logging.info("\nSmushing aborted")
 
     if not quiet or list_only:
-        smush.stats()
+        arr = smush.stats()
+        if list_only and len(arr) > 0:
+            sys.exit(1)
+    sys.exit(0)
 
 
 def usage():

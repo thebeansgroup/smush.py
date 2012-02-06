@@ -4,6 +4,7 @@ import shlex
 import subprocess
 import sys
 import shutil
+import logging
 
 class Optimiser(object):
     """
@@ -25,7 +26,8 @@ class Optimiser(object):
         self.bytes_saved = 0
         self.list_only = kwargs.get('list_only')
         self.array_optimised_file = []
-    
+        self.quiet = kwargs.get('quiet')
+
     def set_input(self, input):
         self.iterations = 0
         self.input = input
@@ -73,7 +75,7 @@ class Optimiser(object):
                 self.files_optimised += 1
                 self.bytes_saved += (input_size - output_size)
             except IOError:
-                print "Unable to copy %s to %s: %s" % (output, input, IOError)
+                logging.error("Unable to copy %s to %s: %s" % (output, input, IOError))
                 sys.exit(1)
         
         # delete the output file
@@ -92,7 +94,7 @@ class Optimiser(object):
         try:
             output = subprocess.check_output(args)
         except OSError:
-            print "Error executing command %s. Error was %s" % (test_command, OSError)
+            logging.error("Error executing command %s. Error was %s" % (test_command, OSError))
             sys.exit(1)
         except CalledProcessError:
             return False
@@ -107,10 +109,14 @@ class Optimiser(object):
         """
         # make sure the input image is acceptable for this optimiser
         if not self._is_acceptable_image(self.input):
-            print self.input, "is not a valid image for this optimiser"
+            logging.warning(self.input, "is not a valid image for this optimiser")
             return
 
         self.files_scanned += 1
+        if self.quiet == True:
+            call_output = open(os.devnull, 'wb')
+        else:
+            call_output = None
 
         while True:
             command = self._get_command()
@@ -121,14 +127,14 @@ class Optimiser(object):
             output_file_name = self._get_output_file_name()
             command = self.__replace_placeholders(command, self.input, output_file_name)
 
-            print "Executing " + command
+            logging.info("Executing " + command)
             
             args = shlex.split(command)
             
             try:
-                return_code = subprocess.call(args)
+                return_code = subprocess.call(args, stdout=call_output)
             except OSError:
-                print "Error executing command %s. Error was %s" % (command, OSError)
+                logging.error("Error executing command %s. Error was %s" % (command, OSError))
                 sys.exit(1)
 
             if not return_code:
