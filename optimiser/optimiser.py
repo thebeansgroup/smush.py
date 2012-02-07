@@ -103,6 +103,7 @@ class Optimiser(object):
                 logging.warning("Cannot identify file.")
             return False
 
+        output = output.strip()
         return output.startswith(self.format)
 
 
@@ -147,6 +148,9 @@ class Optimiser(object):
                     self._keep_smallest_file(self.input, output_file_name)
                 else:
                     self._list_only(self.input, output_file_name)
+            else:
+                # gifsicle seems to fail by the file size?
+                os.unlink(output_file_name)
 
     def _list_only(self, input, output):
         """

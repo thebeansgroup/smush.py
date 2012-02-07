@@ -46,7 +46,6 @@ class Smush():
             logging.info("optimising file %s" % (file))
 
             self.__files_scanned += 1
-
             self.optimisers[key].set_input(file)
             self.optimisers[key].optimise()
 

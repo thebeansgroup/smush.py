@@ -96,3 +96,20 @@ class OptimiseGIF(Optimiser):
         self.iterations += 1
 
         return command
+
+    def _list_only(self, input, output):
+        """
+        Always keeps input, but still compares the sizes of two files
+        """
+        input_size = os.path.getsize(input)
+        output_size = os.path.getsize(output)
+
+        if (output_size > 0 and output_size < input_size):
+            self.files_optimised += 1
+            self.bytes_saved += (input_size - output_size)
+            self.array_optimised_file.append(input)
+            if self.iterations == 1 and not self.is_animated:
+                self.convert_to_png = True
+        
+        # delete the output file
+        os.unlink(output)
