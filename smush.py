@@ -97,22 +97,26 @@ class Smush():
 
 
     def stats(self):
-        print '\n%d files scanned:' % (self.__files_scanned)
+        output = []
+        output.append('\n%d files scanned:' % (self.__files_scanned))
         arr = []
 
         for key, optimiser in self.optimisers.iteritems():
             # divide optimiser.files_optimised by 2 for each optimiser since each optimised file
             # gets counted twice
-            print '    %d %ss optimised out of %d scanned. Saved %dkb' % (optimiser.files_optimised // 2,
-                key, optimiser.files_scanned, optimiser.bytes_saved / 1024)
+            output.append('    %d %ss optimised out of %d scanned. Saved %dkb' % (
+                    optimiser.files_optimised // 2,
+                    key, 
+                    optimiser.files_scanned, 
+                    optimiser.bytes_saved / 1024))
             arr.extend(optimiser.array_optimised_file)
 
         if (len(arr) != 0):
-            print 'Modified files:'
+            output.append('Modified files:')
             for filename in arr:
-                print '    %s' % filename
-        print 'Total time taken: %.2f seconds' % (time.time() - self.__start_time)
-        return arr
+                output.append('    %s' % filename)
+        output.append('Total time taken: %.2f seconds' % (time.time() - self.__start_time))
+        return {'output': "\n".join(output), 'modified': arr}
 
 
     def __checkExclude(self, file):
@@ -179,9 +183,11 @@ def main():
         except KeyboardInterrupt:
             logging.info('\nSmushing aborted')
 
-    arr = smush.stats()
-    if list_only and len(arr) > 0:
+    result = smush.stats()
+    if list_only and len(result['modified']) > 0:
+        logging.error(result['output'])
         sys.exit(1)
+    print result['output']
     sys.exit(0)
 
 def usage():
