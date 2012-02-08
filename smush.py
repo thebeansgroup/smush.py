@@ -179,7 +179,7 @@ def main():
         except KeyboardInterrupt:
             logging.info('\nSmushing aborted')
 
-    arr = smush.stats)
+    arr = smush.stats()
     if list_only and len(arr) > 0:
         sys.exit(1)
     sys.exit(0)
