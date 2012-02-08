@@ -1,20 +1,15 @@
-#!/usr/local/bin/python2.7
-import sys
-import os
-import os.path
-import getopt
-import time
-import shlex
-import subprocess
+#!/usr/bin/env python
+
+import sys, os, os.path, getopt, time, shlex, subprocess, logging
 from subprocess import CalledProcessError
 from optimiser.formats.png import OptimisePNG
 from optimiser.formats.jpg import OptimiseJPG
 from optimiser.formats.gif import OptimiseGIF
 from optimiser.formats.animated_gif import OptimiseAnimatedGIF
-import logging
 
-__author__="al"
-__date__ ="$Aug 11, 2010 12:21:32 PM$"
+__author__     = 'al, Takashi Mizohata'
+__credit__     = ['al', 'Takashi Mizohata']
+__maintainer__ = 'Takashi Mizohata'
 
 # there should be an option to keep or strip meta data (e.g. exif data) from jpegs
 
@@ -36,6 +31,7 @@ class Smush():
             self.exclude[dir] = True
         self.quiet = kwargs.get('quiet')
 
+
     def __smush(self, file):
         """
         Optimises a file
@@ -43,8 +39,7 @@ class Smush():
         key = self.__get_image_format(file)
 
         if key in self.optimisers:
-            logging.info("optimising file %s" % (file))
-
+            logging.info('optimising file %s' % (file))
             self.__files_scanned += 1
             self.optimisers[key].set_input(file)
             self.optimisers[key].optimise()
@@ -70,15 +65,12 @@ class Smush():
     def __walk(self, dir, callback):
         """ Walks a directory, and executes a callback on each file """
         dir = os.path.abspath(dir)
-
-        logging.info("walking %s" % (dir))
-
+        logging.info('walking %s' % (dir))
         for file in os.listdir(dir):
             if self.__checkExclude(file):
                 continue
             nfile = os.path.join(dir, file)
             callback(nfile)
-
             if os.path.isdir(nfile):
                 self.__walk(nfile, callback)
 
@@ -93,44 +85,46 @@ class Smush():
         try:
             output = subprocess.Popen(args, stdout=subprocess.PIPE).communicate()[0]
         except OSError:
-            logging.error("Error executing command %s. Error was %s" % (test_command, OSError))
+            logging.error('Error executing command %s. Error was %s' % (test_command, OSError))
             sys.exit(1)
         except:
             # most likely no file matched
             if self.quiet == False:
-                logging.warning("Cannot identify file.")
+                logging.warning('Cannot identify file.')
             return False
 
         return output[:6].strip()
 
 
     def stats(self):
-        print "\n%d files scanned:" % (self.__files_scanned)
+        print '\n%d files scanned:' % (self.__files_scanned)
         arr = []
 
         for key, optimiser in self.optimisers.iteritems():
             # divide optimiser.files_optimised by 2 for each optimiser since each optimised file
             # gets counted twice
-            print "    %d %ss optimised out of %d scanned. Saved %dkb" % (optimiser.files_optimised // 2,
+            print '    %d %ss optimised out of %d scanned. Saved %dkb' % (optimiser.files_optimised // 2,
                 key, optimiser.files_scanned, optimiser.bytes_saved / 1024)
             arr.extend(optimiser.array_optimised_file)
 
         if (len(arr) != 0):
-            print "Modified files:"
+            print 'Modified files:'
             for filename in arr:
-                print "    %s" % filename
-        print "Total time taken: %.2f seconds" % (time.time() - self.__start_time)
+                print '    %s' % filename
+        print 'Total time taken: %.2f seconds' % (time.time() - self.__start_time)
         return arr
+
 
     def __checkExclude(self, file):
         if file in self.exclude:
-            logging.info("%s is excluded." % (file))
+            logging.info('%s is excluded.' % (file))
             return True
         return False
 
+
 def main():
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hrqs", ["help", "recursive", "quiet", "strip-meta", "exclude=", "list-only"])
+        opts, args = getopt.getopt(sys.argv[1:], 'hrqs', ['help', 'recursive', 'quiet', 'strip-meta', 'exclude=', 'list-only'])
     except getopt.GetoptError:
         usage()
         sys.exit(2)
@@ -146,18 +140,18 @@ def main():
     list_only = False
 
     for opt, arg in opts:
-        if opt in ("-h", "--help"):
+        if opt in ('-h', '--help'):
             usage()
             sys.exit()
-        elif opt in ("-r", "--recursive"):
+        elif opt in ('-r', '--recursive'):
             recursive = True
-        elif opt in ("-q", "--quiet"):
+        elif opt in ('-q', '--quiet'):
             quiet = True
-        elif opt in ("-s", "--strip-meta"):
+        elif opt in ('-s', '--strip-meta'):
             strip_jpg_meta = True
-        elif opt in ("--exclude"):
+        elif opt in ('--exclude'):
             exclude.extend(arg.strip().split(','))
-        elif opt in ("--list-only"):
+        elif opt in ('--list-only'):
             list_only = True
             # quiet = True
         else:
@@ -168,28 +162,27 @@ def main():
     if quiet == True:
         logging.basicConfig(
             level=logging.WARNING,
-            format="%(asctime)s %(levelname)s %(message)s",
-            datefmt="%Y-%m-%d %H:%M:%S")
+            format='%(asctime)s %(levelname)s %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S')
     else:
         logging.basicConfig(
             level=logging.DEBUG,
-            format="%(asctime)s %(levelname)s %(message)s",
-            datefmt="%Y-%m-%d %H:%M:%S")
+            format='%(asctime)s %(levelname)s %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S')
 
     smush = Smush(strip_jpg_meta=strip_jpg_meta, exclude=exclude, list_only=list_only, quiet=quiet)
 
     for arg in args:
         try:
             smush.process(arg, recursive)
-            logging.info("\nSmushing Finished")
+            logging.info('\nSmushing Finished')
         except KeyboardInterrupt:
-            logging.info("\nSmushing aborted")
+            logging.info('\nSmushing aborted')
 
-    arr = smush.stats()
+    arr = smush.stats)
     if list_only and len(arr) > 0:
         sys.exit(1)
     sys.exit(0)
-
 
 def usage():
     print """Losslessly optimises image files - this saves bandwidth when displaying them
@@ -210,10 +203,5 @@ on the web.
   --exclude=EXCLUDES comma separated value for excluding files
 """
 
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
-
-#    optimiser = OptimisePNG()
-#    optimiser.set_input('/path/to/image.png')
-#    optimiser.optimise()
