@@ -207,6 +207,7 @@ on the web.
   -q, --quiet        Don't display optimisation statistics at the end
   -s, --strip-meta   Strip all meta-data from JPEGs
   --exclude=EXCLUDES comma separated value for excluding files
+  --list-only        Perform a trial run with no changes made
 """
 
 if __name__ == '__main__':
