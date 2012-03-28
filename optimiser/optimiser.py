@@ -5,6 +5,7 @@ import subprocess
 import sys
 import shutil
 import logging
+import tempfile
 
 class Optimiser(object):
     """
@@ -46,11 +47,11 @@ class Optimiser(object):
         return command
 
 
-    def _get_output_file_name(self):
-        """
-        Returns the input file name with Optimiser.output_suffix inserted before the extension
-        """
-        return self.input + Optimiser.output_suffix
+    # def _get_output_file_name(self):
+    #     """
+    #     Returns the input file name with Optimiser.output_suffix inserted before the extension
+    #     """
+    #     return self.input + Optimiser.output_suffix
 
 
     def __replace_placeholders(self, command, input, output):
@@ -129,7 +130,10 @@ class Optimiser(object):
             if not command:
                 break
 
-            output_file_name = self._get_output_file_name()
+            # let's use tempfile
+            # output_file_name = self._get_output_file_name()
+            temp = tempfile.mkstemp()
+            output_file_name = temp[1]
             command = self.__replace_placeholders(command, self.input, output_file_name)
 
             logging.info("Executing %s" % (command))
