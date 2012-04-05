@@ -47,11 +47,14 @@ class Optimiser(object):
         return command
 
 
-    # def _get_output_file_name(self):
-    #     """
-    #     Returns the input file name with Optimiser.output_suffix inserted before the extension
-    #     """
-    #     return self.input + Optimiser.output_suffix
+    def _get_output_file_name(self):
+        """
+        Returns the input file name with Optimiser.output_suffix inserted before the extension
+        """
+        temp = tempfile.mkstemp(suffix=Optimiser.output_suffix)
+        output_file_name = temp[1]
+        os.unlink(output_file_name)
+        return output_file_name
 
 
     def __replace_placeholders(self, command, input, output):
@@ -130,10 +133,7 @@ class Optimiser(object):
             if not command:
                 break
 
-            # let's use tempfile
-            # output_file_name = self._get_output_file_name()
-            temp = tempfile.mkstemp()
-            output_file_name = temp[1]
+            output_file_name = self._get_output_file_name()
             command = self.__replace_placeholders(command, self.input, output_file_name)
 
             logging.info("Executing %s" % (command))
