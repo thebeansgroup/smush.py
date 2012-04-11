@@ -53,22 +53,45 @@ class TestSetup(object):
             self.working_dir = ''
 
 class SmushTestSuite(TestSetup, unittest.TestCase):
-    def test_smush_dir_not_recursive (self):
-        input_path = os.path.join(materials_dir, filename_gif)
-        output_path = os.path.join(self.working_dir, filename_gif)
-
+    def test_smush_file (self):
+        smushing_path = os.path.join(self.working_dir, filename_gif)
         smush = Smush(strip_jpg_meta=False, list_only=False, quiet=True, exclude='.bzr,.git,.hg,.svn,.DS_Store')
-        smush.process(output_path, False)
+        smush.process(smushing_path, False)
 
         for each_file in self.working_files:
             if each_file == filename_gif:
-                input_size = os.path.getsize(input_path)
-                output_size = os.path.getsize(output_path)
-                self.assertTrue(input_size > output_size)
+                src_size = os.path.getsize(os.path.join(materials_dir, each_file))
+                dest_size = os.path.getsize(smushing_path)
+                self.assertTrue(src_size > dest_size)
             else:
-                input_size = os.path.getsize(os.path.join(materials_dir, each_file))
-                output_size = os.path.getsize(os.path.join(self.working_dir, each_file))
-                self.assertTrue(input_size == output_size)
+                src_size = os.path.getsize(os.path.join(materials_dir, each_file))
+                dest_size = os.path.getsize(os.path.join(self.working_dir, each_file))
+                self.assertTrue(src_size == dest_size)
+        return True
+
+    def test_smush_dir_not_recursive (self):
+        smush = Smush(strip_jpg_meta=False, list_only=False, quiet=True, exclude='.bzr,.git,.hg,.svn,.DS_Store')
+        smush.process(self.working_dir, False)
+
+        for each_file in self.working_files:
+            if each_file == filename_gif:
+                src_size = os.path.getsize(os.path.join(materials_dir, each_file))
+                dest_size = os.path.getsize(os.path.join(self.working_dir, each_file))
+                self.assertTrue(src_size > dest_size)
+            else:
+                src_size = os.path.getsize(os.path.join(materials_dir, each_file))
+                dest_size = os.path.getsize(os.path.join(self.working_dir, each_file))
+                self.assertTrue(src_size == dest_size)
+        return True
+
+    def test_smush_dir_recursive (self):
+        smush = Smush(strip_jpg_meta=False, list_only=False, quiet=True, exclude='.bzr,.git,.hg,.svn,.DS_Store')
+        smush.process(self.working_dir, True)
+
+        for each_file in self.working_files:
+            src_size = os.path.getsize(os.path.join(materials_dir, each_file))
+            dest_size = os.path.getsize(os.path.join(self.working_dir, each_file))
+            self.assertTrue(src_size > dest_size)
         return True
 
 if __name__ == '__main__':
