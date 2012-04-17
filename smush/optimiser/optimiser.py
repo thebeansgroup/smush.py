@@ -6,6 +6,7 @@ import sys
 import shutil
 import logging
 import tempfile
+from scratch import Scratch
 
 class Optimiser(object):
     """
@@ -28,6 +29,12 @@ class Optimiser(object):
         self.list_only = kwargs.get('list_only')
         self.array_optimised_file = []
         self.quiet = kwargs.get('quiet')
+        self.stdout = Scratch()
+        self.stderr = Scratch()
+
+    def __del__(self):
+        self.stdout.destruct()
+        self.stderr.destruct()
 
     def set_input(self, input):
         self.iterations = 0
@@ -97,7 +104,7 @@ class Optimiser(object):
         args = shlex.split(test_command)
 
         try:
-            output = subprocess.Popen(args, stdout=subprocess.PIPE).communicate()[0]
+            retcode = subprocess.call(args, stdout=self.stdout.opened, stderr=self.stderr.opened)
         except OSError:
             logging.error("Error executing command %s. Error was %s" % (test_command, OSError))
             sys.exit(1)
@@ -106,8 +113,11 @@ class Optimiser(object):
             if self.quiet == False:
                 logging.warning("Cannot identify file.")
             return False
-
-        output = output.strip()
+        if retcode != 0:
+            if self.quiet == False:
+                logging.warning("Cannot identify file.")
+            return False
+        output = self.stdout.read().strip()
         return output.startswith(self.format)
 
 
@@ -122,10 +132,6 @@ class Optimiser(object):
             return
 
         self.files_scanned += 1
-        if self.quiet == True:
-            call_output = open(os.devnull, 'wb')
-        else:
-            call_output = None
 
         while True:
             command = self._get_command()
@@ -135,26 +141,25 @@ class Optimiser(object):
 
             output_file_name = self._get_output_file_name()
             command = self.__replace_placeholders(command, self.input, output_file_name)
-
             logging.info("Executing %s" % (command))
-            
             args = shlex.split(command)
             
             try:
-                return_code = subprocess.call(args, stdout=call_output)
+                retcode = subprocess.call(args, stdout=self.stdout.opened, stderr=self.stderr.opened)
             except OSError:
                 logging.error("Error executing command %s. Error was %s" % (command, OSError))
                 sys.exit(1)
 
-            if not return_code:
+            if retcode != 0:
+                # gifsicle seems to fail by the file size?
+                os.unlink(output_file_name)
+            else :
                 if self.list_only == False:
                     # compare file sizes if the command executed successfully
                     self._keep_smallest_file(self.input, output_file_name)
                 else:
                     self._list_only(self.input, output_file_name)
-            else:
-                # gifsicle seems to fail by the file size?
-                os.unlink(output_file_name)
+
 
     def _list_only(self, input, output):
         """

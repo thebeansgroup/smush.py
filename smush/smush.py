@@ -6,6 +6,7 @@ from optimiser.formats.png import OptimisePNG
 from optimiser.formats.jpg import OptimiseJPG
 from optimiser.formats.gif import OptimiseGIF
 from optimiser.formats.animated_gif import OptimiseAnimatedGIF
+from scratch import Scratch
 
 __author__     = 'al, Takashi Mizohata'
 __credit__     = ['al', 'Takashi Mizohata']
@@ -31,6 +32,13 @@ class Smush():
             self.exclude[dir] = True
         self.quiet = kwargs.get('quiet')
 
+        # setup tempfile for stdout and stderr
+        self.stdout = Scratch()
+        self.stderr = Scratch()
+
+    def __del__(self):
+        self.stdout.destruct()
+        self.stderr.destruct()
 
     def __smush(self, file):
         """
@@ -83,7 +91,12 @@ class Smush():
         args = shlex.split(test_command)
 
         try:
-            output = subprocess.Popen(args, stdout=subprocess.PIPE).communicate()[0]
+            retcode = subprocess.call(args, stdout=self.stdout.opened, stderr=self.stderr.opened)
+            if retcode != 0:
+                if self.quiet == False:
+                    logging.warning(self.stderr.read().strip())
+                return False
+
         except OSError:
             logging.error('Error executing command %s. Error was %s' % (test_command, OSError))
             sys.exit(1)
@@ -93,7 +106,7 @@ class Smush():
                 logging.warning('Cannot identify file.')
             return False
 
-        return output[:6].strip()
+        return self.stdout.read().strip()[:6]
 
 
     def stats(self):

@@ -38,7 +38,8 @@ class OptimiseJPG(Optimiser):
                         
             # for the next one, only return the second command if file size > 10kb
             if os.path.getsize(self.input) > 10000:
-                logging.error("File is > 10kb - will be converted to progressive")
+                if self.quiet == False:
+                    logging.warning("File is > 10kb - will be converted to progressive")
                 return self.commands[1]
 
         return False
