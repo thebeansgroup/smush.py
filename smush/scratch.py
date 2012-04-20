@@ -2,9 +2,9 @@ import os, sys, tempfile
 
 class Scratch (object):
     def __init__ (self):
-        tuple = tempfile.mkstemp()
-        self._path = tuple[1]
-        self._file = os.fdopen(tuple[0])        
+        tup = tempfile.mkstemp()
+        self._path = tup[1]
+        self._file = os.fdopen(tup[0])        
         self._file.close()
 
     def __del__ (self):
