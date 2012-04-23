@@ -11,9 +11,13 @@ class OptimisePNG(Optimiser):
     def __init__(self, **kwargs):
         super(OptimisePNG, self).__init__(**kwargs)
 
+        if kwargs.get('quiet') == True:
+            pngcrush = 'pngcrush -rem alla -brute -reduce -q "__INPUT__" "__OUTPUT__"'
+        else:
+            pngcrush = 'pngcrush -rem alla -brute -reduce "__INPUT__" "__OUTPUT__"'
+
         # the command to execute this optimiser
-        self.commands = ('pngnq -n 256 -o "__OUTPUT__" "__INPUT__"',
-            'pngcrush -rem alla -brute -reduce "__INPUT__" "__OUTPUT__"')
+        self.commands = ('pngnq -n 256 -o "__OUTPUT__" "__INPUT__"', pngcrush)
 
         # format as returned by 'identify'
         self.format = "PNG"

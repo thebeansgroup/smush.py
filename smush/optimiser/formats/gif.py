@@ -2,6 +2,7 @@ import os.path
 import shutil
 from optimiser.optimiser import Optimiser
 from animated_gif import OptimiseAnimatedGIF
+import logging
 
 class OptimiseGIF(Optimiser):
     """
@@ -16,9 +17,13 @@ class OptimiseGIF(Optimiser):
         super(OptimiseGIF, self).__init__(**kwargs)
 
         # the command to execute this optimiser
+        if kwargs.get('quiet') == True:
+            pngcrush = 'pngcrush -rem alla -brute -reduce -q "__INPUT__" "__OUTPUT__"'
+        else:
+            pngcrush = 'pngcrush -rem alla -brute -reduce "__INPUT__" "__OUTPUT__"'
         self.commands = ('convert "__INPUT__" png:"__OUTPUT__"',
             'pngnq -n 256 -o "__OUTPUT__" "__INPUT__"',
-            'pngcrush -rem alla -brute -reduce "__INPUT__" "__OUTPUT__"')
+            pngcrush)
 
         # variable so we can easily determine whether a gif is animated or not
         self.animated_gif_optimiser = OptimiseAnimatedGIF()
@@ -58,7 +63,7 @@ class OptimiseGIF(Optimiser):
                 self.files_optimised += 1
                 self.bytes_saved += (input_size - output_size)
             except IOError:
-                print "Unable to copy %s to %s: %s" % (output, input, IOError)
+                logging.error("Unable to copy %s to %s: %s" % (output, input, IOError))
                 sys.exit(1)
 
             if self.iterations == 1 and not self.is_animated:
@@ -91,3 +96,20 @@ class OptimiseGIF(Optimiser):
         self.iterations += 1
 
         return command
+
+    def _list_only(self, input, output):
+        """
+        Always keeps input, but still compares the sizes of two files
+        """
+        input_size = os.path.getsize(input)
+        output_size = os.path.getsize(output)
+
+        if (output_size > 0 and output_size < input_size):
+            self.files_optimised += 1
+            self.bytes_saved += (input_size - output_size)
+            self.array_optimised_file.append(input)
+            if self.iterations == 1 and not self.is_animated:
+                self.convert_to_png = True
+        
+        # delete the output file
+        os.unlink(output)

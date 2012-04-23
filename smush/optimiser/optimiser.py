@@ -4,6 +4,9 @@ import shlex
 import subprocess
 import sys
 import shutil
+import logging
+import tempfile
+from scratch import Scratch
 
 class Optimiser(object):
     """
@@ -23,8 +26,16 @@ class Optimiser(object):
         self.files_scanned = 0
         self.files_optimised = 0
         self.bytes_saved = 0
+        self.list_only = kwargs.get('list_only')
+        self.array_optimised_file = []
+        self.quiet = kwargs.get('quiet')
+        self.stdout = Scratch()
+        self.stderr = Scratch()
 
-    
+    def __del__(self):
+        self.stdout.destruct()
+        self.stderr.destruct()
+
     def set_input(self, input):
         self.iterations = 0
         self.input = input
@@ -47,7 +58,10 @@ class Optimiser(object):
         """
         Returns the input file name with Optimiser.output_suffix inserted before the extension
         """
-        return self.input + Optimiser.output_suffix
+        temp = tempfile.mkstemp(suffix=Optimiser.output_suffix)
+        output_file_name = temp[1]
+        os.unlink(output_file_name)
+        return output_file_name
 
 
     def __replace_placeholders(self, command, input, output):
@@ -72,7 +86,7 @@ class Optimiser(object):
                 self.files_optimised += 1
                 self.bytes_saved += (input_size - output_size)
             except IOError:
-                print "Unable to copy %s to %s: %s" % (output, input, IOError)
+                logging.error("Unable to copy %s to %s: %s" % (output, input, IOError))
                 sys.exit(1)
         
         # delete the output file
@@ -88,14 +102,22 @@ class Optimiser(object):
         """
         test_command = 'identify -format %%m "%s"' % input
         args = shlex.split(test_command)
-        try:
-            output = subprocess.check_output(args)
-        except OSError:
-            print "Error executing command %s. Error was %s" % (test_command, OSError)
-            sys.exit(1)
-        except CalledProcessError:
-            return False
 
+        try:
+            retcode = subprocess.call(args, stdout=self.stdout.opened, stderr=self.stderr.opened)
+        except OSError:
+            logging.error("Error executing command %s. Error was %s" % (test_command, OSError))
+            sys.exit(1)
+        except:
+            # most likely no file matched
+            if self.quiet == False:
+                logging.warning("Cannot identify file.")
+            return False
+        if retcode != 0:
+            if self.quiet == False:
+                logging.warning("Cannot identify file.")
+            return False
+        output = self.stdout.read().strip()
         return output.startswith(self.format)
 
 
@@ -106,7 +128,7 @@ class Optimiser(object):
         """
         # make sure the input image is acceptable for this optimiser
         if not self._is_acceptable_image(self.input):
-            print self.input, "is not a valid image for this optimiser"
+            logging.warning("%s is not a valid image for this optimiser" % (self.input))
             return
 
         self.files_scanned += 1
@@ -119,17 +141,37 @@ class Optimiser(object):
 
             output_file_name = self._get_output_file_name()
             command = self.__replace_placeholders(command, self.input, output_file_name)
-
-            print "Executing " + command
-            
+            logging.info("Executing %s" % (command))
             args = shlex.split(command)
             
             try:
-                return_code = subprocess.call(args)
+                retcode = subprocess.call(args, stdout=self.stdout.opened, stderr=self.stderr.opened)
             except OSError:
-                print "Error executing command %s. Error was %s" % (command, OSError)
+                logging.error("Error executing command %s. Error was %s" % (command, OSError))
                 sys.exit(1)
 
-            if not return_code:
-                # compare file sizes if the command executed successfully
-                self._keep_smallest_file(self.input, output_file_name)
+            if retcode != 0:
+                # gifsicle seems to fail by the file size?
+                os.unlink(output_file_name)
+            else :
+                if self.list_only == False:
+                    # compare file sizes if the command executed successfully
+                    self._keep_smallest_file(self.input, output_file_name)
+                else:
+                    self._list_only(self.input, output_file_name)
+
+
+    def _list_only(self, input, output):
+        """
+        Always keeps input, but still compares the sizes of two files
+        """
+        input_size = os.path.getsize(input)
+        output_size = os.path.getsize(output)
+
+        if (output_size > 0 and output_size < input_size):
+            self.files_optimised += 1
+            self.bytes_saved += (input_size - output_size)
+            self.array_optimised_file.append(input)
+        
+        # delete the output file
+        os.unlink(output)
