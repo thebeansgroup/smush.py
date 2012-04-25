@@ -31,6 +31,7 @@ class Smush():
                 continue
             self.exclude[dir] = True
         self.quiet = kwargs.get('quiet')
+        self.identify_mime = kwargs.get('identify_mime')
 
         # setup tempfile for stdout and stderr
         self.stdout = Scratch()
@@ -65,6 +66,13 @@ class Smush():
                 for file in os.listdir(dir):
                     if self.__checkExclude(file):
                         continue
+                        
+                    if self.identify_mime:
+                        import mimetypes
+                        (type,encoding) = mimetypes.guess_type(file)
+                        if type and (type[:5] != "image"):
+                            continue
+
                     self.__smush(os.path.join(dir, file))
             elif os.path.isfile(dir):
                 self.__smush(dir)
@@ -77,6 +85,13 @@ class Smush():
         for file in os.listdir(dir):
             if self.__checkExclude(file):
                 continue
+            
+            if self.identify_mime:
+                import mimetypes
+                (type,encoding) = mimetypes.guess_type(file)        
+                if type and (type[:5] != "image"):
+                    continue
+
             nfile = os.path.join(dir, file)
             callback(nfile)
             if os.path.isdir(nfile):
@@ -141,7 +156,7 @@ class Smush():
 
 def main():
     try:
-        opts, args = getopt.getopt(sys.argv[1:], 'hrqs', ['help', 'recursive', 'quiet', 'strip-meta', 'exclude=', 'list-only'])
+        opts, args = getopt.getopt(sys.argv[1:], 'hrqs', ['help', 'recursive', 'quiet', 'strip-meta', 'exclude=', 'list-only' ,'identify-mime'])
     except getopt.GetoptError:
         usage()
         sys.exit(2)
@@ -155,6 +170,7 @@ def main():
     strip_jpg_meta = False
     exclude = ['.bzr', '.git', '.hg', '.svn']
     list_only = False
+    identify_mime = False
 
     for opt, arg in opts:
         if opt in ('-h', '--help'):
@@ -166,6 +182,8 @@ def main():
             quiet = True
         elif opt in ('-s', '--strip-meta'):
             strip_jpg_meta = True
+        elif opt in ('--identify-mime'):
+            identify_mime = True
         elif opt in ('--exclude'):
             exclude.extend(arg.strip().split(','))
         elif opt in ('--list-only'):
@@ -187,7 +205,7 @@ def main():
             format='%(asctime)s %(levelname)s %(message)s',
             datefmt='%Y-%m-%d %H:%M:%S')
 
-    smush = Smush(strip_jpg_meta=strip_jpg_meta, exclude=exclude, list_only=list_only, quiet=quiet)
+    smush = Smush(strip_jpg_meta=strip_jpg_meta, exclude=exclude, list_only=list_only, quiet=quiet, identify_mime=identify_mime)
 
     for arg in args:
         try:
@@ -220,6 +238,7 @@ on the web.
   -q, --quiet        Don't display optimisation statistics at the end
   -s, --strip-meta   Strip all meta-data from JPEGs
   --exclude=EXCLUDES comma separated value for excluding files
+  --identify-mime    Fast identify image files via mimetype
   --list-only        Perform a trial run with no changes made
 """
 
