@@ -59,9 +59,12 @@ class Optimiser(object):
         Returns the input file name with Optimiser.output_suffix inserted before the extension
         """
         temp = tempfile.mkstemp(suffix=Optimiser.output_suffix)
-        output_file_name = temp[1]
-        os.unlink(output_file_name)
-        return output_file_name
+        try:
+            output_file_name = temp[1]
+            os.unlink(output_file_name)
+            return output_file_name
+        finally:
+            os.close(temp[0])
 
 
     def __replace_placeholders(self, command, input, output):
